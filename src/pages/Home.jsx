@@ -45,7 +45,7 @@ export default function Home() {
         description: desc.trim(),
         options: validOptions,
       })
-      navigate(`/poll/${slug}`)
+      navigate(`/poll/${slug}`, { state: { justCreated: true } })
     } catch (e) {
       setError(e.message)
     } finally {

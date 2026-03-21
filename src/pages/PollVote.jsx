@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useParams, useSearchParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link, useLocation } from 'react-router-dom'
 import GamePill from '../components/GamePill.jsx'
 import Spinner from '../components/Spinner.jsx'
 import ErrorBar from '../components/ErrorBar.jsx'
@@ -11,6 +11,8 @@ export default function PollVote() {
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
   const group = searchParams.get('group') || 'default'
+  const location = useLocation()
+  const justCreated = location.state?.justCreated === true
 
   const [poll,       setPoll]       = useState(null)
   const [view,       setView]       = useState('vote')
@@ -22,6 +24,14 @@ export default function PollVote() {
   const [saving,     setSaving]     = useState(false)
   const [error,      setError]      = useState(null)
   const [doneSnap,   setDoneSnap]   = useState(null)
+  const [copied,     setCopied]     = useState(false)
+
+  const pollUrl = `${window.location.origin}/poll/${slug}`
+  const copyLink = () => {
+    navigator.clipboard.writeText(pollUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const dragItem = useRef(null)
   const dragOver = useRef(null)
@@ -138,11 +148,31 @@ export default function PollVote() {
               {label}
             </button>
           ))}
+          <button onClick={copyLink}
+            style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: copied ? 'rgba(74,158,107,0.3)' : 'rgba(255,255,255,0.08)', color: copied ? '#4adf80' : '#a0b4cc', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
+            {copied ? '✓ Copied' : '🔗 Share'}
+          </button>
           <Link to={`/poll/${slug}/admin`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.05)', color: '#5a7a9a' }}>⚙</Link>
         </div>
       </div>
 
       <ErrorBar error={error} onDismiss={() => setError(null)} />
+
+      {/* Share banner — prominent on first creation, compact always */}
+      {justCreated && (
+        <div style={{ background: 'linear-gradient(90deg, rgba(74,172,255,0.15), rgba(253,90,30,0.1))', borderBottom: '1px solid rgba(74,172,255,0.3)', padding: '14px 20px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: '#4aacff', fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
+              <code style={{ color: '#fd9060', fontSize: 13 }}>{pollUrl}</code>
+            </div>
+            <button onClick={copyLink}
+              style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#4a9e6b' : '#fd5a1e', color: 'white', fontWeight: 800, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              {copied ? '✓ Copied!' : '📋 Copy Link'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
 
