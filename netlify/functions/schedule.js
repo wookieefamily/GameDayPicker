@@ -15,7 +15,7 @@ const LEAGUES = {
   // Women's
   wnba:  { sport: "basketball",  league: "wnba",                        label: "WNBA" },
   nwsl:  { sport: "soccer",      league: "usa.nwsl",                    label: "NWSL" },
-  pwhl:  { sport: "hockey",      league: "pwhl",                        label: "PWHL" },
+  wcbh:  { sport: "hockey",      league: "womens-college-hockey",       label: "Women's College Hockey" },
   wcbb:  { sport: "basketball",  league: "womens-college-basketball",   label: "Women's College Basketball" },
   wncaas:{ sport: "soccer",      league: "womens.college.soccer.ng",    label: "Women's College Soccer" },
 };

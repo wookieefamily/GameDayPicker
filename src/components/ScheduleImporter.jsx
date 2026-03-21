@@ -21,7 +21,7 @@ const LEAGUE_GROUPS = [
     leagues: [
       { key: 'wnba',   label: 'WNBA 🏀' },
       { key: 'nwsl',   label: 'NWSL ⚽' },
-      { key: 'pwhl',   label: 'PWHL 🏒' },
+      { key: 'wcbh',   label: "Women's College Hockey 🏒" },
       { key: 'wcbb',   label: "Women's College Basketball 🏀" },
       { key: 'wncaas', label: "Women's College Soccer ⚽" },
     ],

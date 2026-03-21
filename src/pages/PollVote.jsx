@@ -10,7 +10,7 @@ import { computeScores } from '../lib/borda.js'
 const SPORT_ICONS = {
   mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒', mls: '⚽',
   ncaaf: '🏈', ncaab: '🏀',
-  wnba: '🏀', nwsl: '⚽', pwhl: '🏒', wcbb: '🏀', wncaas: '⚽',
+  wnba: '🏀', nwsl: '⚽', wcbh: '🏒', wcbb: '🏀', wncaas: '⚽',
 }
 const sportIcon = league => SPORT_ICONS[league] || '🏆'
 
@@ -346,6 +346,15 @@ export default function PollVote() {
             )}
           </div>
         )}
+      {/* Tip jar */}
+      <div style={{ textAlign: 'center', marginTop: 48, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <p style={{ color: '#3a5070', fontSize: 12, marginBottom: 10 }}>Game Day Picker is free — enjoy the game! 🏆</p>
+        <a href="https://paypal.me/betsydaly" target="_blank" rel="noopener noreferrer"
+          style={{ display: 'inline-block', padding: '8px 22px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#7a9abf', fontSize: 13, fontFamily: 'Georgia, serif', textDecoration: 'none' }}>
+          ☕ Send a tip
+        </a>
+      </div>
+
       </div>
     </div>
   )
