@@ -16,36 +16,42 @@ const headers = {
   "Access-Control-Allow-Origin": "*",
 };
 
+// Use consistency: "strong" so writes are immediately visible in subsequent reads
+function getPolls() {
+  return getStore({ name: "polls", consistency: "strong" });
+}
+
 export default async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers });
   }
 
   try {
-    const store = getStore("polls");
+    const store = getPolls();
     const url   = new URL(req.url);
 
-    // GET /api/polls?slug=foo
-    // GET /api/polls?debug=1  → confirms function + Blobs are reachable
-    if (req.method === "GET") {
-      if (url.searchParams.get("debug") === "1") {
-        await store.set("__ping", "ok");
-        const ping = await store.get("__ping");
-        return new Response(JSON.stringify({ ok: true, ping }), { status: 200, headers });
-      }
+    // GET /api/polls?debug=1  → list all stored poll slugs
+    if (req.method === "GET" && url.searchParams.get("debug") === "1") {
+      const { blobs } = await store.list();
+      const keys = blobs.map(b => b.key);
+      return new Response(JSON.stringify({ ok: true, keys }), { status: 200, headers });
+    }
 
+    // GET /api/polls?slug=foo
+    if (req.method === "GET") {
       const rawSlug = url.searchParams.get("slug") ?? "";
       const slug = rawSlug.replace(/[^a-z0-9_-]/g, "");
-      console.log("GET slug raw:", rawSlug, "sanitized:", slug);
+      console.log("GET slug:", slug);
       if (!slug) {
         return new Response(JSON.stringify({ error: "slug is required" }), { status: 400, headers });
       }
-      const data = await store.get(slug, { type: "json" });
-      console.log("GET result:", data ? "found" : "not found");
-      if (!data) {
+      // Use raw get + manual JSON.parse to avoid any typed-cache quirks
+      const raw = await store.get(slug);
+      console.log("GET raw result:", raw ? "found" : "null");
+      if (!raw) {
         return new Response(JSON.stringify({ error: "Poll not found" }), { status: 404, headers });
       }
-      return new Response(JSON.stringify(data), { status: 200, headers });
+      return new Response(raw, { status: 200, headers });
     }
 
     // POST /api/polls  — create poll, returns { slug }
@@ -83,17 +89,20 @@ export default async (req) => {
         createdAt: Date.now(),
       };
 
-      await store.setJSON(slug, config);
-      // Read back immediately to confirm the write landed
-      const verify = await store.get(slug, { type: "json" });
-      console.log("POST wrote slug:", slug, "verify read:", verify ? "ok" : "MISSING");
+      // Store as raw JSON string to avoid any typed-metadata issues on read
+      await store.set(slug, JSON.stringify(config));
+      console.log("POST stored slug:", slug);
+
+      // Verify write is readable
+      const verify = await store.get(slug);
+      console.log("POST verify:", verify ? "ok" : "MISSING");
+
       return new Response(JSON.stringify({ slug }), { status: 201, headers });
     }
 
     return new Response("Method not allowed", { status: 405, headers });
 
   } catch (err) {
-    // Surface the real error instead of a silent 502
     console.error("polls function error:", err);
     return new Response(
       JSON.stringify({ error: err.message, stack: err.stack }),
@@ -102,5 +111,4 @@ export default async (req) => {
   }
 };
 
-// v2 routing — replaces the netlify.toml redirect for /api/polls
 export const config = { path: "/api/polls" };
