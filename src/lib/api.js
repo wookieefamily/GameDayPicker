@@ -7,8 +7,10 @@ export async function fetchTeams(league) {
   return data.teams ?? []
 }
 
-export async function fetchGames(league, teamId, season) {
-  const res = await fetch(`/api/schedule?action=games&league=${encodeURIComponent(league)}&teamId=${encodeURIComponent(teamId)}&season=${encodeURIComponent(season)}`)
+export async function fetchGames(league, teamId, season, teamAbbr) {
+  let url = `/api/schedule?action=games&league=${encodeURIComponent(league)}&teamId=${encodeURIComponent(teamId)}&season=${encodeURIComponent(season)}`
+  if (teamAbbr) url += `&teamAbbr=${encodeURIComponent(teamAbbr)}`
+  const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to load schedule: ${res.status}`)
   const data = await res.json()
   return data.games ?? []

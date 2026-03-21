@@ -107,7 +107,7 @@ export default function ScheduleImporter({ onImport }) {
     setError(null)
     setGames([])
     try {
-      const raw = await fetchGames(league, selectedTeam.id, season)
+      const raw = await fetchGames(league, selectedTeam.id, season, selectedTeam.abbreviation)
       setGames(raw.map(parseGame))
     } catch (e) {
       setError(e.message)

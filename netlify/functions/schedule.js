@@ -30,7 +30,7 @@ exports.handler = async (event) => {
   };
 
   const params = event.queryStringParameters || {};
-  const { action, league: leagueKey, teamId, season } = params;
+  const { action, league: leagueKey, teamId, season, teamAbbr } = params;
 
   const cfg = LEAGUES[leagueKey];
   if (!cfg) {
@@ -76,9 +76,15 @@ exports.handler = async (event) => {
       const home  = comps.find(c => c.homeAway === "home");
       const away  = comps.find(c => c.homeAway === "away");
 
-      // Figure out which side our team is on
-      const ourSide    = comps.find(c => String(c.team?.id) === String(teamId)) ?? home;
-      const otherSide  = comps.find(c => String(c.team?.id) !== String(teamId)) ?? away;
+      // Figure out which side our team is on.
+      // Try multiple match strategies — ESPN can use different ID formats across leagues.
+      const isOurs = c =>
+        String(c.team?.id) === String(teamId) ||
+        String(c.id)       === String(teamId) ||
+        (teamAbbr && c.team?.abbreviation?.toUpperCase() === teamAbbr.toUpperCase());
+
+      const ourSide   = comps.find(isOurs) ?? home;
+      const otherSide = comps.find(c => !isOurs(c)) ?? away;
       const homeAway   = ourSide?.homeAway ?? "home";
       const opponent   = otherSide?.team?.displayName ?? "TBD";
 
