@@ -4,13 +4,20 @@
 //   GET /api/schedule?action=games&league=mlb&teamId=28&season=2026
 
 const LEAGUES = {
-  mlb:   { sport: "baseball",    league: "mlb",                       label: "MLB" },
-  nfl:   { sport: "football",    league: "nfl",                       label: "NFL" },
-  nba:   { sport: "basketball",  league: "nba",                       label: "NBA" },
-  nhl:   { sport: "hockey",      league: "nhl",                       label: "NHL" },
-  ncaaf: { sport: "football",    league: "college-football",          label: "College Football" },
-  ncaab: { sport: "basketball",  league: "mens-college-basketball",   label: "College Basketball" },
-  mls:   { sport: "soccer",      league: "usa.1",                     label: "MLS" },
+  // Men's
+  mlb:   { sport: "baseball",    league: "mlb",                         label: "MLB" },
+  nfl:   { sport: "football",    league: "nfl",                         label: "NFL" },
+  nba:   { sport: "basketball",  league: "nba",                         label: "NBA" },
+  nhl:   { sport: "hockey",      league: "nhl",                         label: "NHL" },
+  mls:   { sport: "soccer",      league: "usa.1",                       label: "MLS" },
+  ncaaf: { sport: "football",    league: "college-football",            label: "College Football" },
+  ncaab: { sport: "basketball",  league: "mens-college-basketball",     label: "College Basketball" },
+  // Women's
+  wnba:  { sport: "basketball",  league: "wnba",                        label: "WNBA" },
+  nwsl:  { sport: "soccer",      league: "usa.nwsl",                    label: "NWSL" },
+  pwhl:  { sport: "hockey",      league: "pwhl",                        label: "PWHL" },
+  wcbb:  { sport: "basketball",  league: "womens-college-basketball",   label: "Women's College Basketball" },
+  wncaas:{ sport: "soccer",      league: "womens.college.soccer.ng",    label: "Women's College Soccer" },
 };
 
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports";

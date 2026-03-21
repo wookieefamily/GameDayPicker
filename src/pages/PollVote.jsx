@@ -8,8 +8,9 @@ import { fetchPoll, fetchVotes, pushVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 
 const SPORT_ICONS = {
-  mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒',
-  ncaaf: '🏈', ncaab: '🏀', mls: '⚽',
+  mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒', mls: '⚽',
+  ncaaf: '🏈', ncaab: '🏀',
+  wnba: '🏀', nwsl: '⚽', pwhl: '🏒', wcbb: '🏀', wncaas: '⚽',
 }
 const sportIcon = league => SPORT_ICONS[league] || '🏆'
 

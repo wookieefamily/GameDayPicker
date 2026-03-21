@@ -3,15 +3,31 @@ import Spinner from './Spinner.jsx'
 import { fetchTeams, fetchGames } from '../lib/api.js'
 import { slugify, monthFromIso } from '../lib/slugify.js'
 
-const LEAGUES = [
-  { key: 'mlb',   label: 'MLB — Baseball' },
-  { key: 'nfl',   label: 'NFL — Football' },
-  { key: 'nba',   label: 'NBA — Basketball' },
-  { key: 'nhl',   label: 'NHL — Hockey' },
-  { key: 'ncaaf', label: 'College Football' },
-  { key: 'ncaab', label: 'College Basketball' },
-  { key: 'mls',   label: 'MLS — Soccer' },
+const LEAGUE_GROUPS = [
+  {
+    label: "Men's Leagues",
+    leagues: [
+      { key: 'mlb',   label: 'MLB ⚾' },
+      { key: 'nfl',   label: 'NFL 🏈' },
+      { key: 'nba',   label: 'NBA 🏀' },
+      { key: 'nhl',   label: 'NHL 🏒' },
+      { key: 'mls',   label: 'MLS ⚽' },
+      { key: 'ncaaf', label: 'College Football 🏈' },
+      { key: 'ncaab', label: 'College Basketball 🏀' },
+    ],
+  },
+  {
+    label: "Women's Leagues",
+    leagues: [
+      { key: 'wnba',   label: 'WNBA 🏀' },
+      { key: 'nwsl',   label: 'NWSL ⚽' },
+      { key: 'pwhl',   label: 'PWHL 🏒' },
+      { key: 'wcbb',   label: "Women's College Basketball 🏀" },
+      { key: 'wncaas', label: "Women's College Soccer ⚽" },
+    ],
+  },
 ]
+const ALL_LEAGUES = LEAGUE_GROUPS.flatMap(g => g.leagues)
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -148,18 +164,23 @@ export default function ScheduleImporter({ onImport }) {
       {/* Step 1: League */}
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>1. League</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {LEAGUES.map(l => (
-            <button key={l.key} onClick={() => setLeague(l.key)}
-              style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid', fontSize: 12, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
-                borderColor: league === l.key ? '#4aacff' : '#2a4060',
-                background:  league === l.key ? 'rgba(74,172,255,0.15)' : 'transparent',
-                color:       league === l.key ? '#4aacff' : '#6a8aaa',
-              }}>
-              {l.label}
-            </button>
-          ))}
-        </div>
+        {LEAGUE_GROUPS.map(group => (
+          <div key={group.label} style={{ marginBottom: 10 }}>
+            <div style={{ color: '#4a6a8a', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>{group.label}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {group.leagues.map(l => (
+                <button key={l.key} onClick={() => setLeague(l.key)}
+                  style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid', fontSize: 12, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
+                    borderColor: league === l.key ? '#4aacff' : '#2a4060',
+                    background:  league === l.key ? 'rgba(74,172,255,0.15)' : 'transparent',
+                    color:       league === l.key ? '#4aacff' : '#6a8aaa',
+                  }}>
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Step 2: Team search */}
@@ -172,7 +193,7 @@ export default function ScheduleImporter({ onImport }) {
               <input
                 value={teamQuery}
                 onChange={e => { setTeamQuery(e.target.value); setSelectedTeam(null); setGames([]) }}
-                placeholder={`Search ${LEAGUES.find(l=>l.key===league)?.label ?? ''} teams…`}
+                placeholder={`Search ${ALL_LEAGUES.find(l=>l.key===league)?.label ?? ''} teams…`}
                 style={inputStyle}
               />
               {teamQuery && !selectedTeam && (
