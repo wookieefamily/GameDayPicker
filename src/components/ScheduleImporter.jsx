@@ -23,7 +23,6 @@ const LEAGUE_GROUPS = [
       { key: 'nwsl',   label: 'NWSL ⚽' },
       { key: 'pwhl',   label: 'PWHL 🏒' },
       { key: 'wcbb',   label: "Women's College Basketball 🏀" },
-      { key: 'wncaas', label: "Women's College Soccer ⚽" },
     ],
   },
 ]

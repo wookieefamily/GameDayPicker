@@ -17,7 +17,6 @@ const LEAGUES = {
   nwsl:  { sport: "soccer",      league: "usa.nwsl",                    label: "NWSL" },
   pwhl:  { sport: "hockey",      league: "pwhl",                        label: "PWHL" },
   wcbb:  { sport: "basketball",  league: "womens-college-basketball",   label: "Women's College Basketball" },
-  wncaas:{ sport: "soccer",      league: "womens.college.soccer.ng",    label: "Women's College Soccer" },
 };
 
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports";
