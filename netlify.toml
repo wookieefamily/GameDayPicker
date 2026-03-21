@@ -13,11 +13,6 @@
   status = 200
 
 [[redirects]]
-  from   = "/api/polls"
-  to     = "/.netlify/functions/polls"
-  status = 200
-
-[[redirects]]
   from   = "/api/schedule"
   to     = "/.netlify/functions/schedule"
   status = 200
