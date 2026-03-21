@@ -33,8 +33,18 @@ export default function PollVote() {
   const [copied,     setCopied]     = useState(false)
 
   const pollUrl = `${window.location.origin}/poll/${slug}`
-  const copyLink = () => {
-    navigator.clipboard.writeText(pollUrl)
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(pollUrl)
+    } catch {
+      // Fallback for browsers that block clipboard API
+      const el = document.createElement('textarea')
+      el.value = pollUrl
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
