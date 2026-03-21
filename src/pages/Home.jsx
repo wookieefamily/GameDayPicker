@@ -35,7 +35,6 @@ export default function Home() {
         .map((o, i) => ({
           id: slugify(o.name) + '-' + i,
           name: o.name.trim(),
-          // Imported options carry pre-computed display values; manual ones have an ISO date
           date:  o._displayDate || (o.date ? formatDate(o.date) : ''),
           month: o._month       || (o.date ? monthFromIso(o.date) : ''),
           time:  o.time.trim(),
@@ -65,16 +64,37 @@ export default function Home() {
 
       <ErrorBar error={error} onDismiss={() => setError(null)} />
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
-        <h2 style={{ color: 'white', fontSize: 20, marginBottom: 6 }}>Create a New Poll</h2>
-        <p style={{ color: '#7a9abf', fontSize: 13, marginBottom: 28 }}>
-          Participants will rank your options using Borda count voting. Each poll gets its own shareable URL.
+      {/* Hero */}
+      <div style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '32px 20px 28px', textAlign: 'center' }}>
+        {/* Sport emoji banner */}
+        <div style={{ fontSize: 36, letterSpacing: 8, marginBottom: 16 }}>⚾ 🏈 🏀 🏒 ⚽</div>
+        <h2 style={{ color: 'white', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>
+          Stop the group chat debate.
+        </h2>
+        <p style={{ color: '#7a9abf', fontSize: 15, maxWidth: 480, margin: '0 auto 24px' }}>
+          Share a link, everyone ranks their picks, the best date wins.
         </p>
+        {/* How it works */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', maxWidth: 640, margin: '0 auto' }}>
+          {[
+            { icon: '📅', title: 'Add your options', desc: 'Import any team\'s schedule or enter dates manually' },
+            { icon: '🔗', title: 'Share the link', desc: 'Your crew ranks their picks in under a minute' },
+            { icon: '🏆', title: 'Best date wins', desc: 'Everyone\'s preferences are tallied automatically' },
+          ].map(step => (
+            <div key={step.title} style={{ flex: '1 1 160px', maxWidth: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 14px' }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>{step.icon}</div>
+              <div style={{ color: '#fd5a1e', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{step.title}</div>
+              <div style={{ color: '#6a8aaa', fontSize: 12, lineHeight: 1.5 }}>{step.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
+        <h2 style={{ color: 'white', fontSize: 20, marginBottom: 24 }}>Create a New Poll</h2>
 
         {/* Title */}
-        <label style={{ display: 'block', color: '#a0b4cc', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-          Poll Title *
-        </label>
+        <label style={labelStyle}>Poll Title *</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -83,9 +103,7 @@ export default function Home() {
         />
 
         {/* Description */}
-        <label style={{ display: 'block', color: '#a0b4cc', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, marginTop: 18 }}>
-          Description
-        </label>
+        <label style={{ ...labelStyle, marginTop: 18 }}>Description</label>
         <textarea
           value={desc}
           onChange={e => setDesc(e.target.value)}
@@ -94,8 +112,15 @@ export default function Home() {
           style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
         />
 
-        {/* Schedule importer */}
-        <div style={{ marginTop: 24 }}>
+        {/* Easy option — schedule importer */}
+        <div style={{ marginTop: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <span style={{ background: '#4a9e6b', color: 'white', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 1 }}>Easy Option</span>
+            <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>Import Your Favorite Team's Schedule</span>
+          </div>
+          <p style={{ color: '#5a7a9a', fontSize: 12, marginBottom: 10 }}>
+            Search any MLB, NFL, NBA, NHL, or college team — filter by day, time, and home/away — then import in one click.
+          </p>
           <ScheduleImporter onImport={(imported, importedLeague) => {
             setLeague(importedLeague)
             setOptions(imported.map(o => ({
@@ -109,12 +134,15 @@ export default function Home() {
           }} />
         </div>
 
-        {/* Options */}
-        <div style={{ marginTop: 8, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <label style={{ color: '#a0b4cc', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
-            Options * (min 2)
-          </label>
-          <span style={{ color: '#5a7a9a', fontSize: 11 }}>Date and time are optional</span>
+        {/* Manual option */}
+        <div style={{ marginTop: 28, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <span style={{ background: '#3d7ebf', color: 'white', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 1 }}>Manual Option</span>
+            <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>Enter Specific Games or Dates</span>
+          </div>
+          <p style={{ color: '#5a7a9a', fontSize: 12, marginBottom: 12 }}>
+            Type in any options you like — not just sports. Date and time are optional.
+          </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -170,13 +198,14 @@ export default function Home() {
         >
           {saving ? <><Spinner />Creating Poll…</> : 'Create Poll & Get Link →'}
         </button>
-
-        <p style={{ color: '#3a5a7a', fontSize: 11, textAlign: 'center', marginTop: 12 }}>
-          Poll config stored in Netlify Blobs · Votes stored in JSONBin
-        </p>
       </div>
     </div>
   )
+}
+
+const labelStyle = {
+  display: 'block', color: '#a0b4cc', fontSize: 12, fontWeight: 700,
+  textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6,
 }
 
 const inputStyle = {
