@@ -1,15 +1,23 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Spinner from '../components/Spinner.jsx'
 import ErrorBar from '../components/ErrorBar.jsx'
 import ScheduleImporter from '../components/ScheduleImporter.jsx'
 import { createPoll } from '../lib/api.js'
 import { slugify, monthFromIso, formatDate } from '../lib/slugify.js'
+import { getBrand } from '../lib/brands.js'
 
 const EMPTY_OPTION = () => ({ name: '', date: '', time: '', note: '' })
 
 export default function Home() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const brand    = getBrand(searchParams.get('brand'))
+  const ac       = brand?.accent    ?? '#fd5a1e'
+  const acText   = brand?.accentText ?? 'white'
+  const pageBg   = brand?.pageBg   ?? 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)'
+  const headerBg = brand?.headerBg ?? 'linear-gradient(90deg, #0f1f3d, #1a1008)'
+  const brandKey = searchParams.get('brand')
   const [title, setTitle]       = useState('')
   const [desc, setDesc]         = useState('')
   const [options, setOptions]   = useState([EMPTY_OPTION(), EMPTY_OPTION()])
@@ -46,7 +54,7 @@ export default function Home() {
         options: validOptions,
         league: league ?? undefined,
       })
-      navigate(`/poll/${slug}`, { state: { justCreated: true } })
+      navigate(`/poll/${slug}${brandKey ? `?brand=${brandKey}` : ''}`, { state: { justCreated: true } })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -55,11 +63,18 @@ export default function Home() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)', fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
+    <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
       {/* Header */}
-      <div style={{ background: 'linear-gradient(90deg, #0f1f3d, #1a1008)', borderBottom: '3px solid #fd5a1e', padding: '16px 20px' }}>
-        <div style={{ color: '#fd5a1e', fontWeight: 800, fontSize: 20 }}>🏆 Game Day Picker</div>
-        <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>Create a ranked-choice voting poll · Share the link</div>
+      <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        {brand?.logo && <img src={brand.logo} alt={brand.shortName} style={{ height: 40, width: 40, objectFit: 'contain' }} />}
+        <div>
+          <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>
+            {brand ? brand.shortName : '🏆 Game Day Picker'}
+          </div>
+          <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
+            {brand ? 'Create a poll · Share with your fans' : 'Create a ranked-choice voting poll · Share the link'}
+          </div>
+        </div>
       </div>
 
       <ErrorBar error={error} onDismiss={() => setError(null)} />
@@ -83,7 +98,7 @@ export default function Home() {
           ].map(step => (
             <div key={step.title} style={{ flex: '1 1 160px', maxWidth: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 14px' }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>{step.icon}</div>
-              <div style={{ color: '#fd5a1e', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{step.title}</div>
+              <div style={{ color: ac, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{step.title}</div>
               <div style={{ color: '#6a8aaa', fontSize: 12, lineHeight: 1.5 }}>{step.desc}</div>
             </div>
           ))}
@@ -149,7 +164,7 @@ export default function Home() {
           {options.map((opt, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ color: '#fd5a1e', fontWeight: 800, fontSize: 12, minWidth: 20 }}>#{i+1}</span>
+                <span style={{ color: ac, fontWeight: 800, fontSize: 12, minWidth: 20 }}>#{i+1}</span>
                 <input
                   value={opt.name}
                   onChange={e => updateOption(i, 'name', e.target.value)}
@@ -194,7 +209,7 @@ export default function Home() {
         <button
           onClick={handleCreate}
           disabled={!valid || saving}
-          style={{ marginTop: 24, width: '100%', padding: '14px', borderRadius: 10, border: 'none', background: valid && !saving ? '#fd5a1e' : '#333', color: 'white', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', cursor: valid && !saving ? 'pointer' : 'default' }}
+          style={{ marginTop: 24, width: '100%', padding: '14px', borderRadius: 10, border: 'none', background: valid && !saving ? ac : '#333', color: valid && !saving ? acText : 'white', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', cursor: valid && !saving ? 'pointer' : 'default' }}
         >
           {saving ? <><Spinner />Creating Poll…</> : 'Create Poll & Get Link →'}
         </button>
