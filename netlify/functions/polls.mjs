@@ -34,11 +34,14 @@ export default async (req) => {
         return new Response(JSON.stringify({ ok: true, ping }), { status: 200, headers });
       }
 
-      const slug = (url.searchParams.get("slug") ?? "").replace(/[^a-z0-9_-]/g, "");
+      const rawSlug = url.searchParams.get("slug") ?? "";
+      const slug = rawSlug.replace(/[^a-z0-9_-]/g, "");
+      console.log("GET slug raw:", rawSlug, "sanitized:", slug);
       if (!slug) {
         return new Response(JSON.stringify({ error: "slug is required" }), { status: 400, headers });
       }
       const data = await store.get(slug, { type: "json" });
+      console.log("GET result:", data ? "found" : "not found");
       if (!data) {
         return new Response(JSON.stringify({ error: "Poll not found" }), { status: 404, headers });
       }
@@ -81,6 +84,9 @@ export default async (req) => {
       };
 
       await store.setJSON(slug, config);
+      // Read back immediately to confirm the write landed
+      const verify = await store.get(slug, { type: "json" });
+      console.log("POST wrote slug:", slug, "verify read:", verify ? "ok" : "MISSING");
       return new Response(JSON.stringify({ slug }), { status: 201, headers });
     }
 
