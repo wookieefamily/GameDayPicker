@@ -25,7 +25,8 @@ const { useState, useRef, useEffect, useCallback } = React;
 // ─────────────────────────────────────────────────────────────────
 //  CONFIGURATION — fill these in after JSONBin setup (see below)
 // ─────────────────────────────────────────────────────────────────
-const API_URL = "/api/votes";
+const GROUP = new URLSearchParams(window.location.search).get("group") || "default";
+const API_URL = `/api/votes?group=${encodeURIComponent(GROUP)}`;
 // ─────────────────────────────────────────────────────────────────
 
 const GAMES = [
@@ -152,6 +153,7 @@ function App() {
   const [saving,     setSaving]     = useState(false);
   const [error,      setError]      = useState(null);
   const [doneSnap,   setDoneSnap]   = useState(null);
+  const [resetting,  setResetting]  = useState(false);
 
   const dragItem = useRef(null);
   const dragOver = useRef(null);
@@ -173,6 +175,19 @@ function App() {
     if (configured) loadFromServer();
     else setLoading(false);
   }, []);
+
+  const resetVotes = async () => {
+    if (!window.confirm(`Reset all votes for "${GROUP}"? This cannot be undone.`)) return;
+    setResetting(true);
+    try {
+      await fetch(API_URL, { method: "DELETE" });
+      setVotes([]);
+    } catch(e) {
+      setError("Couldn't reset votes.");
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const rankedIds = new Set(ranking);
   const available = GAMES.filter(g => !rankedIds.has(g.id));
@@ -265,7 +280,10 @@ function App() {
       <div style={{ background: "linear-gradient(90deg, #0f1f3d, #1a1008)", borderBottom: "3px solid #fd5a1e", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <div style={{ color: "#fd5a1e", fontWeight: 800, fontSize: 20 }}>⛵ McCoy Cove 2026</div>
-          <div style={{ color: "#a0b4cc", fontSize: 12, marginTop: 2 }}>SF Giants Day Game Planner · Oracle Park</div>
+          <div style={{ color: "#a0b4cc", fontSize: 12, marginTop: 2 }}>
+            SF Giants Day Game Planner · Oracle Park
+            {GROUP !== "default" && <span style={{ marginLeft: 8, background: "rgba(253,90,30,0.2)", color: "#fd5a1e", padding: "1px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{GROUP}</span>}
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {[["vote","🗳 My Vote"],["results","📊 Group Results"]].map(([tab, label]) => (
@@ -399,6 +417,10 @@ function App() {
               <button onClick={loadFromServer}
                 style={{ padding: "8px 14px", borderRadius: 8, border: "1.5px solid #2a4060", background: "transparent", color: "#a0b4cc", fontSize: 12, fontFamily: "inherit", cursor: "pointer", fontWeight: 600 }}>
                 {loading ? <><Spinner />Refreshing…</> : "↻ Refresh"}
+              </button>
+              <button onClick={resetVotes} disabled={resetting}
+                style={{ padding: "8px 14px", borderRadius: 8, border: "1.5px solid #5a1a1a", background: "transparent", color: "#c06060", fontSize: 12, fontFamily: "inherit", cursor: resetting ? "default" : "pointer", fontWeight: 600 }}>
+                {resetting ? "Resetting…" : "🗑 Reset Votes"}
               </button>
             </div>
             {loading && <div style={{ color: "#5a7a9a", textAlign: "center", padding: 40 }}><Spinner />Loading…</div>}
