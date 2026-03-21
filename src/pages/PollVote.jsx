@@ -166,7 +166,7 @@ export default function PollVote() {
           <div>
             <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>{poll?.title}</div>
             <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
-              {brand ? brand.shortName : poll?.description}
+              {brand ? brand.name : poll?.description}
               {!brand && group !== 'default' && (
                 <span style={{ marginLeft: 8, background: acRgba(0.2), color: ac, padding: '1px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{group}</span>
               )}

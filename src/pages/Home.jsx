@@ -69,7 +69,7 @@ export default function Home() {
         {brand?.logo && <img src={brand.logo} alt={brand.shortName} style={{ height: 40, width: 40, objectFit: 'contain' }} />}
         <div>
           <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>
-            {brand ? brand.shortName : '🏆 Game Day Picker'}
+            {brand ? brand.name : '🏆 Game Day Picker'}
           </div>
           <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
             {brand ? 'Create a poll · Share with your fans' : 'Create a ranked-choice voting poll · Share the link'}
