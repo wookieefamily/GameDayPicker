@@ -30,7 +30,7 @@ exports.handler = async (event) => {
   };
 
   const params = event.queryStringParameters || {};
-  const { action, league: leagueKey, teamId, season, teamAbbr } = params;
+  const { action, league: leagueKey, teamId, season, teamAbbr, debug } = params;
 
   const cfg = LEAGUES[leagueKey];
   if (!cfg) {
@@ -97,6 +97,26 @@ exports.handler = async (event) => {
         status:   comp.status?.type?.description ?? "",
       };
     }).filter(g => g.utcDate); // drop games without a scheduled date
+
+    // ?debug=1 returns raw competitor info for diagnosis
+    if (debug) {
+      const raw = events.slice(0, 5).map(ev => {
+        const comp  = ev.competitions?.[0] ?? {};
+        const comps = comp.competitors ?? [];
+        return {
+          date: ev.date,
+          venue: comp.venue?.fullName,
+          competitors: comps.map(c => ({
+            homeAway: c.homeAway,
+            id: c.id,
+            teamId: c.team?.id,
+            teamAbbr: c.team?.abbreviation,
+            teamName: c.team?.displayName,
+          })),
+        };
+      });
+      return { statusCode: 200, headers, body: JSON.stringify({ teamId, teamAbbr, raw }) };
+    }
 
     return { statusCode: 200, headers, body: JSON.stringify({ games }) };
   }
