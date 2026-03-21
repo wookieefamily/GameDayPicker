@@ -10,7 +10,7 @@ import { computeScores } from '../lib/borda.js'
 const SPORT_ICONS = {
   mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒', mls: '⚽',
   ncaaf: '🏈', ncaab: '🏀',
-  wnba: '🏀', nwsl: '⚽', wcbh: '🏒', wcbb: '🏀', wncaas: '⚽',
+  wnba: '🏀', nwsl: '⚽', pwhl: '🏒', wcbb: '🏀', wncaas: '⚽',
 }
 const sportIcon = league => SPORT_ICONS[league] || '🏆'
 
@@ -169,6 +169,7 @@ export default function PollVote() {
             style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: copied ? 'rgba(74,158,107,0.3)' : 'rgba(255,255,255,0.08)', color: copied ? '#4adf80' : '#a0b4cc', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
             {copied ? '✓ Copied' : '🔗 Share'}
           </button>
+          <Link to="/" style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(253,90,30,0.15)', color: '#fd5a1e', whiteSpace: 'nowrap' }}>+ New Poll</Link>
           <Link to={`/poll/${slug}/admin`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.05)', color: '#5a7a9a' }}>⚙</Link>
         </div>
       </div>

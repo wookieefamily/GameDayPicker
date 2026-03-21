@@ -81,9 +81,10 @@ export default function PollAdmin() {
             )}
           </div>
         </div>
-        <Link to={`/poll/${slug}`} style={{ padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.08)', color: '#a0b4cc' }}>
-          ← Back to Poll
-        </Link>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link to="/" style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(253,90,30,0.15)', color: '#fd5a1e' }}>+ New Poll</Link>
+          <Link to={`/poll/${slug}`} style={{ padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.08)', color: '#a0b4cc' }}>← Back to Poll</Link>
+        </div>
       </div>
 
       <ErrorBar error={error} onDismiss={() => setError(null)} />

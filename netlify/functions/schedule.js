@@ -15,7 +15,7 @@ const LEAGUES = {
   // Women's
   wnba:  { sport: "basketball",  league: "wnba",                        label: "WNBA" },
   nwsl:  { sport: "soccer",      league: "usa.nwsl",                    label: "NWSL" },
-  wcbh:  { sport: "hockey",      league: "womens-college-hockey",       label: "Women's College Hockey" },
+  pwhl:  { sport: "hockey",      league: "pwhl",                        label: "PWHL" },
   wcbb:  { sport: "basketball",  league: "womens-college-basketball",   label: "Women's College Basketball" },
   wncaas:{ sport: "soccer",      league: "womens.college.soccer.ng",    label: "Women's College Soccer" },
 };
@@ -35,6 +35,46 @@ exports.handler = async (event) => {
   const cfg = LEAGUES[leagueKey];
   if (!cfg) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: `Unknown league: ${leagueKey}` }) };
+  }
+
+  // ── PWHL (uses HockeyTech API, not ESPN) ─────────────────────────────
+  if (leagueKey === "pwhl") {
+    const PWHL_TEAMS = [
+      { id: "1", name: "Boston Fleet",         abbreviation: "BOS", location: "Boston" },
+      { id: "4", name: "Minnesota Frost",      abbreviation: "MIN", location: "Minnesota" },
+      { id: "3", name: "Montréal Victoire",    abbreviation: "MTL", location: "Montréal" },
+      { id: "2", name: "New York Sirens",      abbreviation: "NY",  location: "New York" },
+      { id: "5", name: "Ottawa Charge",        abbreviation: "OTT", location: "Ottawa" },
+      { id: "9", name: "Seattle Torrent",      abbreviation: "SEA", location: "Seattle" },
+      { id: "6", name: "Toronto Sceptres",     abbreviation: "TOR", location: "Toronto" },
+      { id: "8", name: "Vancouver Goldeneyes", abbreviation: "VAN", location: "Vancouver" },
+    ];
+
+    if (action === "teams") {
+      return { statusCode: 200, headers, body: JSON.stringify({ teams: PWHL_TEAMS }) };
+    }
+
+    if (action === "games") {
+      if (!teamId) return { statusCode: 400, headers, body: JSON.stringify({ error: "teamId required" }) };
+      // PWHL seasons: 2023-24=3, 2024-25=5, 2025-26=7 (increments of 2 per year from season 5 at 2025)
+      const yr = parseInt(season || String(new Date().getFullYear()));
+      const seasonId = Math.max(3, (yr - 2025) * 2 + 5);
+      const url = `https://lscluster.hockeytech.com/feed/?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang=en&season_id=${seasonId}&team_id=${teamId}`;
+      const res = await fetch(url);
+      if (!res.ok) return { statusCode: 502, headers, body: JSON.stringify({ error: "PWHL API request failed" }) };
+      const data = await res.json();
+      const schedule = data?.SiteKit?.Schedule ?? [];
+      const games = schedule.map(g => ({
+        id:          g.game_id,
+        utcDate:     g.GameDateISO8601,
+        opponent:    String(g.home_team) === String(teamId) ? g.visiting_team_name : g.home_team_name,
+        homeAway:    String(g.home_team) === String(teamId) ? "home" : "away",
+        neutralSite: false,
+        venue:       g.venue_name ?? "",
+        status:      g.game_status ?? "",
+      })).filter(g => g.utcDate);
+      return { statusCode: 200, headers, body: JSON.stringify({ games }) };
+    }
   }
 
   const base = `${ESPN}/${cfg.sport}/${cfg.league}`;
