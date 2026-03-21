@@ -22,14 +22,12 @@ export default function PollVote() {
   const location = useLocation()
   const justCreated = location.state?.justCreated === true
 
-  // Brand theming
   const brand    = getBrand(searchParams.get('brand'))
   const ac       = brand?.accent    ?? '#fd5a1e'
   const acText   = brand?.accentText ?? 'white'
   const acRgba   = (a) => brand ? `rgba(${brand.accentRgb},${a})` : `rgba(253,90,30,${a})`
-  const pageBg   = brand?.pageBg   ?? 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)'
-  const headerBg = brand?.headerBg ?? 'linear-gradient(90deg, #0f1f3d, #1a1008)'
-  // Preserve brand param in internal links
+  const pageBg   = brand?.pageBg   ?? '#f5f7fa'
+  const headerBg = brand?.headerBg ?? '#ffffff'
   const brandQ   = brand ? `?brand=${searchParams.get('brand')}` : ''
 
   const [poll,       setPoll]       = useState(null)
@@ -139,7 +137,7 @@ export default function PollVote() {
 
   if (loading && !poll) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5a7a9a', fontFamily: 'Georgia, serif' }}>
+      <div style={{ minHeight: '100vh', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'Georgia, serif', fontSize: 16 }}>
         <Spinner /> Loading poll…
       </div>
     )
@@ -147,60 +145,61 @@ export default function PollVote() {
 
   if (!loading && !poll) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', flexDirection: 'column', gap: 16 }}>
-        <div style={{ fontSize: 48 }}>🤔</div>
-        <div style={{ color: 'white', fontSize: 18 }}>Poll not found</div>
-        <Link to="/" style={{ color: ac, fontSize: 14 }}>← Create a new poll</Link>
+      <div style={{ minHeight: '100vh', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', flexDirection: 'column', gap: 16 }}>
+        <div style={{ fontSize: 56 }}>🤔</div>
+        <div style={{ color: '#111827', fontSize: 20, fontWeight: 700 }}>Poll not found</div>
+        <Link to="/" style={{ color: ac, fontSize: 15 }}>← Create a new poll</Link>
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
+    <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Georgia, serif', paddingBottom: 64 }}>
+
       {/* Header */}
-      <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           {brand?.logo && (
             <img src={brand.logo} alt={brand.shortName} style={{ height: 44, width: 44, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
           )}
-          <div>
-            <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>{poll?.title}</div>
-            <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: ac, fontWeight: 800, fontSize: 18, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{poll?.title}</div>
+            <div style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>
               {brand ? brand.name : poll?.description}
               {!brand && group !== 'default' && (
-                <span style={{ marginLeft: 8, background: acRgba(0.2), color: ac, padding: '1px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{group}</span>
+                <span style={{ marginLeft: 8, background: acRgba(0.12), color: ac, padding: '1px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{group}</span>
               )}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {[['vote','🗳 My Vote'],['results','📊 Group Results']].map(([tab, label]) => (
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {[['vote','🗳 Vote'],['results','📊 Results']].map(([tab, label]) => (
             <button key={tab} onClick={() => { setView(tab); if (tab === 'results') loadVotes() }}
-              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', background: view === tab ? ac : 'rgba(255,255,255,0.08)', color: view === tab ? acText : '#a0b4cc' }}>
+              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', background: view === tab ? ac : '#f3f4f6', color: view === tab ? acText : '#374151' }}>
               {label}
             </button>
           ))}
           <button onClick={copyLink}
-            style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: copied ? 'rgba(74,158,107,0.3)' : 'rgba(255,255,255,0.08)', color: copied ? '#4adf80' : '#a0b4cc', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
+            style={{ padding: '8px 13px', borderRadius: 8, border: 'none', background: copied ? '#dcfce7' : '#f3f4f6', color: copied ? '#16a34a' : '#374151', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
             {copied ? '✓ Copied' : '🔗 Share'}
           </button>
-          <Link to={`/${brandQ}`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: acRgba(0.15), color: ac, whiteSpace: 'nowrap' }}>+ New Poll</Link>
-          <Link to={`/poll/${slug}/admin${brandQ}`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.05)', color: '#5a7a9a' }}>⚙</Link>
+          <Link to={`/${brandQ}`} style={{ padding: '8px 13px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: acRgba(0.1), color: ac, whiteSpace: 'nowrap' }}>+ New</Link>
+          <Link to={`/poll/${slug}/admin${brandQ}`} style={{ padding: '8px 13px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: '#f3f4f6', color: '#6b7280' }}>⚙</Link>
         </div>
       </div>
 
       <ErrorBar error={error} onDismiss={() => setError(null)} />
 
-      {/* Share banner — shown on first creation */}
+      {/* Share banner */}
       {justCreated && (
-        <div style={{ background: 'linear-gradient(90deg, rgba(74,172,255,0.15), rgba(253,90,30,0.1))', borderBottom: '1px solid rgba(74,172,255,0.3)', padding: '14px 20px' }}>
+        <div style={{ background: '#fffbeb', borderBottom: '1px solid #fde68a', padding: '14px 16px' }}>
           <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ color: '#4aacff', fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
-              <code style={{ color: '#fd9060', fontSize: 13 }}>{pollUrl}</code>
+              <div style={{ color: '#92400e', fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
+              <code style={{ color: '#b45309', fontSize: 13, wordBreak: 'break-all' }}>{pollUrl}</code>
             </div>
             <button onClick={copyLink}
-              style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#4a9e6b' : ac, color: copied ? 'white' : acText, fontWeight: 800, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#16a34a' : ac, color: 'white', fontWeight: 800, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
               {copied ? '✓ Copied!' : '📋 Copy Link'}
             </button>
           </div>
@@ -212,30 +211,30 @@ export default function PollVote() {
         {/* NAME step */}
         {view === 'vote' && step === 'name' && (
           <div style={{ maxWidth: 420, margin: '40px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>
+            <div style={{ fontSize: 56, marginBottom: 14 }}>
               {brand?.logo
                 ? <img src={brand.logo} alt="" style={{ height: 72, objectFit: 'contain', borderRadius: 10 }} />
                 : sportIcon(poll?.league)
               }
             </div>
-            <h2 style={{ color: 'white', fontSize: 22, marginBottom: 8 }}>Who's voting?</h2>
-            <p style={{ color: '#7a9abf', fontSize: 14, marginBottom: 24 }}>Rank your favorites to help the group decide.</p>
+            <h2 style={{ color: '#111827', fontSize: 26, fontWeight: 800, marginBottom: 10 }}>Who's voting?</h2>
+            <p style={{ color: '#4b5563', fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>Rank your favorites to help the group decide.</p>
             <input
               autoFocus value={voterName}
               onChange={e => setVoterName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && voterName.trim() && setStep('rank')}
               placeholder="Enter your name"
-              style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '2px solid #2a4060', background: '#0f1f3d', color: 'white', fontSize: 16, fontFamily: 'inherit', outline: 'none', marginBottom: 12 }}
+              style={{ width: '100%', padding: '14px 16px', borderRadius: 12, border: '2px solid #d1d5db', background: 'white', color: '#111827', fontSize: 17, fontFamily: 'inherit', outline: 'none', marginBottom: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
             />
             <button onClick={() => voterName.trim() && setStep('rank')} disabled={!voterName.trim()}
-              style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: voterName.trim() ? ac : '#333', color: voterName.trim() ? acText : 'white', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', cursor: voterName.trim() ? 'pointer' : 'default' }}>
+              style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: voterName.trim() ? ac : '#e5e7eb', color: voterName.trim() ? acText : '#9ca3af', fontSize: 17, fontWeight: 700, fontFamily: 'inherit', cursor: voterName.trim() ? 'pointer' : 'default', boxShadow: voterName.trim() ? '0 2px 8px rgba(253,90,30,0.25)' : 'none' }}>
               Let's Go →
             </button>
             {loading
-              ? <p style={{ color: '#3a5a7a', fontSize: 12, marginTop: 16 }}><Spinner />Loading votes…</p>
+              ? <p style={{ color: '#9ca3af', fontSize: 13, marginTop: 18 }}><Spinner />Loading votes…</p>
               : votes.length > 0 && (
-                <p style={{ color: '#5a7a9a', fontSize: 12, marginTop: 16 }}>
-                  {votes.length} voter{votes.length !== 1 ? 's' : ''}: {votes.map(v => v.name).join(', ')}
+                <p style={{ color: '#6b7280', fontSize: 14, marginTop: 18, lineHeight: 1.5 }}>
+                  {votes.length} voter{votes.length !== 1 ? 's' : ''} so far: {votes.map(v => v.name).join(', ')}
                 </p>
               )
             }
@@ -245,24 +244,24 @@ export default function PollVote() {
         {/* RANK step */}
         {view === 'vote' && step === 'rank' && (
           <div>
-            <div style={{ marginBottom: 18 }}>
-              <h2 style={{ color: 'white', fontSize: 18, marginBottom: 4 }}>Hey {voterName}, rank your picks!</h2>
-              <p style={{ color: '#7a9abf', fontSize: 13 }}>Click an option to add it. Drag to reorder. Rank as many or as few as you like.</p>
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ color: '#111827', fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Hey {voterName}, rank your picks!</h2>
+              <p style={{ color: '#4b5563', fontSize: 14, lineHeight: 1.6 }}>Tap an option to add it to your ranking. Drag to reorder. Rank as many or as few as you like.</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div className="rank-grid">
               <div>
-                <div style={{ color: ac, fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>All Options — click to add</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 540, overflowY: 'auto' }}>
+                <div style={{ color: '#374151', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>All Options — tap to add</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 560, overflowY: 'auto' }}>
                   {available.map(o => <GamePill key={o.id} option={o} onClick={() => addOption(o.id)} />)}
-                  {!available.length && <div style={{ color: '#5a7a9a', fontSize: 13, textAlign: 'center', padding: 24 }}>All options ranked ✓</div>}
+                  {!available.length && <div style={{ color: '#6b7280', fontSize: 14, textAlign: 'center', padding: 28, background: 'white', borderRadius: 10, border: '1px solid #e5e7eb' }}>All options ranked ✓</div>}
                 </div>
               </div>
               <div>
-                <div style={{ color: '#4adf80', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Your Ranking — drag to reorder · click to remove</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 60, maxHeight: 540, overflowY: 'auto' }}>
+                <div style={{ color: '#16a34a', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Your Ranking — drag to reorder · tap to remove</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minHeight: 60, maxHeight: 560, overflowY: 'auto' }}>
                   {!ranking.length && (
-                    <div style={{ border: '2px dashed #2a4060', borderRadius: 10, padding: 24, color: '#3a5070', fontSize: 13, textAlign: 'center' }}>
-                      Click options on the left to start ranking
+                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 10, padding: 28, color: '#9ca3af', fontSize: 14, textAlign: 'center', background: 'white' }}>
+                      Tap options on the left to start ranking
                     </div>
                   )}
                   {ranking.map((id, i) => {
@@ -278,7 +277,7 @@ export default function PollVote() {
                 </div>
                 {ranking.length > 0 && (
                   <button onClick={handleSubmit} disabled={saving}
-                    style={{ marginTop: 12, width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: saving ? '#444' : ac, color: saving ? 'white' : acText, fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: saving ? 'default' : 'pointer' }}>
+                    style={{ marginTop: 14, width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: saving ? '#e5e7eb' : ac, color: saving ? '#9ca3af' : acText, fontSize: 16, fontWeight: 700, fontFamily: 'inherit', cursor: saving ? 'default' : 'pointer', boxShadow: saving ? 'none' : '0 2px 8px rgba(253,90,30,0.25)' }}>
                     {saving ? <><Spinner />Saving…</> : `Submit My ${ranking.length} Pick${ranking.length !== 1 ? 's' : ''} →`}
                   </button>
                 )}
@@ -290,23 +289,23 @@ export default function PollVote() {
         {/* DONE step */}
         {view === 'vote' && step === 'done' && doneSnap && (
           <div style={{ maxWidth: 500, margin: '40px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 56, marginBottom: 12 }}>⚓</div>
-            <h2 style={{ color: 'white', fontSize: 22, marginBottom: 8 }}>Vote saved!</h2>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+            <h2 style={{ color: '#111827', fontSize: 26, fontWeight: 800, marginBottom: 10 }}>Vote saved!</h2>
             {doneSnap.topOption && (
-              <p style={{ color: '#7a9abf', fontSize: 14, marginBottom: 8 }}>
-                Thanks {voterName}. Your top pick: <strong style={{ color: ac }}>{doneSnap.topOption.name}{doneSnap.topOption.date ? ` — ${doneSnap.topOption.date}` : ''}</strong>
+              <p style={{ color: '#4b5563', fontSize: 16, marginBottom: 10, lineHeight: 1.6 }}>
+                Thanks {voterName}! Your top pick: <strong style={{ color: ac }}>{doneSnap.topOption.name}{doneSnap.topOption.date ? ` — ${doneSnap.topOption.date}` : ''}</strong>
               </p>
             )}
-            <p style={{ color: '#5a7a9a', fontSize: 13, marginBottom: 24 }}>
+            <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 28 }}>
               {doneSnap.totalVoters} voter{doneSnap.totalVoters !== 1 ? 's' : ''} have voted so far.
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button onClick={() => { setStep('name'); setVoterName(''); setRanking([]) }}
-                style={{ padding: '10px 20px', borderRadius: 8, border: '1.5px solid #2a4060', background: 'transparent', color: '#a0b4cc', fontFamily: 'inherit', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '12px 22px', borderRadius: 10, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontFamily: 'inherit', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>
                 Vote Again
               </button>
               <button onClick={() => { setView('results'); loadVotes() }}
-                style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: ac, color: acText, fontFamily: 'inherit', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '12px 22px', borderRadius: 10, border: 'none', background: ac, color: acText, fontFamily: 'inherit', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
                 See Results →
               </button>
             </div>
@@ -318,47 +317,47 @@ export default function PollVote() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
               <div>
-                <h2 style={{ color: 'white', fontSize: 20 }}>Group Rankings</h2>
-                <p style={{ color: '#7a9abf', fontSize: 13, marginTop: 3 }}>
+                <h2 style={{ color: '#111827', fontSize: 22, fontWeight: 800 }}>Group Rankings</h2>
+                <p style={{ color: '#6b7280', fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
                   Highest overall rank · {votes.length} voter{votes.length !== 1 ? 's' : ''}
                   {votes.length > 0 && ': ' + votes.map(v => v.name).join(', ')}
                 </p>
               </div>
               <button onClick={loadVotes}
-                style={{ padding: '8px 14px', borderRadius: 8, border: '1.5px solid #2a4060', background: 'transparent', color: '#a0b4cc', fontSize: 12, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600 }}>
+                style={{ padding: '9px 16px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600 }}>
                 {loading ? <><Spinner />Refreshing…</> : '↻ Refresh'}
               </button>
             </div>
 
-            {loading && <div style={{ color: '#5a7a9a', textAlign: 'center', padding: 40 }}><Spinner />Loading…</div>}
+            {loading && <div style={{ color: '#6b7280', textAlign: 'center', padding: 40 }}><Spinner />Loading…</div>}
             {!loading && !votes.length && (
-              <div style={{ color: '#5a7a9a', textAlign: 'center', padding: 40, fontSize: 15 }}>No votes yet — be the first to rank!</div>
+              <div style={{ color: '#6b7280', textAlign: 'center', padding: 48, fontSize: 16, background: 'white', borderRadius: 12, border: '1px solid #e5e7eb' }}>No votes yet — be the first to rank! 🗳</div>
             )}
             {!loading && votes.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {sorted.map((o, i) => {
                   const sc    = scores[o.id]
                   const pct   = (sc / maxScore) * 100
                   const medal = ['🥇','🥈','🥉'][i] ?? null
                   return (
-                    <div key={o.id} style={{ background: i < 3 ? acRgba(0.08) : 'rgba(255,255,255,.04)', border: i < 3 ? `1px solid ${acRgba(0.25)}` : '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 18, width: 28, textAlign: 'center', flexShrink: 0 }}>
-                        {medal ?? <span style={{ color: '#3a5070', fontSize: 13, fontWeight: 700 }}>#{i+1}</span>}
+                    <div key={o.id} style={{ background: 'white', border: i < 3 ? `1.5px solid ${acRgba(0.35)}` : '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: i === 0 ? '0 2px 8px rgba(253,90,30,0.12)' : '0 1px 3px rgba(0,0,0,0.04)' }}>
+                      <span style={{ fontSize: 20, width: 30, textAlign: 'center', flexShrink: 0 }}>
+                        {medal ?? <span style={{ color: '#9ca3af', fontSize: 14, fontWeight: 700 }}>#{i+1}</span>}
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                           {o.month && <MonthTag month={o.month} />}
-                          {o.date && <span style={{ color: '#a0b4cc', fontSize: 11 }}>{o.date}</span>}
-                          {o.time && <span style={{ color: '#6a8aaa', fontSize: 11 }}>{o.time}</span>}
+                          {o.date && <span style={{ color: '#4b5563', fontSize: 12, fontWeight: 600 }}>{o.date}</span>}
+                          {o.time && <span style={{ color: '#6b7280', fontSize: 12 }}>{o.time}</span>}
                         </div>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{o.name}</div>
-                        <div style={{ marginTop: 5, height: 5, background: '#1a3050', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? brand?.accentRgb ? acRgba(0.7) : '#f0a060' : '#3a6090', transition: 'width .6s ease' }} />
+                        <div style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{o.name}</div>
+                        <div style={{ marginTop: 6, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ color: i < 3 ? ac : '#a0b4cc', fontWeight: 800, fontSize: 18 }}>{sc}</div>
-                        <div style={{ color: '#4a6a8a', fontSize: 10 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
+                        <div style={{ color: i < 3 ? ac : '#374151', fontWeight: 800, fontSize: 20 }}>{sc}</div>
+                        <div style={{ color: '#9ca3af', fontSize: 11 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
                       </div>
                     </div>
                   )
@@ -368,14 +367,14 @@ export default function PollVote() {
           </div>
         )}
 
-      {/* Tip jar */}
-      <div style={{ textAlign: 'center', marginTop: 48, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <p style={{ color: '#3a5070', fontSize: 12, marginBottom: 10 }}>Game Day Picker is free — enjoy the game! 🏆</p>
-        <a href="https://paypal.me/betsydaly" target="_blank" rel="noopener noreferrer"
-          style={{ display: 'inline-block', padding: '8px 22px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#7a9abf', fontSize: 13, fontFamily: 'Georgia, serif', textDecoration: 'none' }}>
-          ☕ Send a tip
-        </a>
-      </div>
+        {/* Tip jar */}
+        <div style={{ textAlign: 'center', marginTop: 56, paddingTop: 24, borderTop: '1px solid #e5e7eb' }}>
+          <p style={{ color: '#9ca3af', fontSize: 13, marginBottom: 12 }}>Game Day Picker is free — enjoy the game! 🏆</p>
+          <a href="https://paypal.me/betsydaly" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 24, background: 'white', border: '1.5px solid #e5e7eb', color: '#6b7280', fontSize: 14, fontFamily: 'Georgia, serif', textDecoration: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            ☕ Send a tip
+          </a>
+        </div>
 
       </div>
     </div>

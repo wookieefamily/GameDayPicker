@@ -19,7 +19,7 @@ export default function GamePill({ option, rank, onClick, draggable, onDragStart
     >
       {rank != null && (
         <span style={{
-          minWidth: 24, height: 24, borderRadius: '50%', background: '#0f1f3d', color: '#fd5a1e',
+          minWidth: 26, height: 26, borderRadius: '50%', background: '#fd5a1e', color: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 12, fontWeight: 800, flexShrink: 0,
         }}>{rank}</span>
@@ -30,13 +30,13 @@ export default function GamePill({ option, rank, onClick, draggable, onDragStart
           <span style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{option.date}</span>
           {option.time && <span style={{ fontSize: 11, color: '#aaa' }}>{option.time}</span>}
         </div>
-        <div style={{ fontWeight: 700, fontSize: 14, color: '#0f1f3d', marginTop: 2 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: '#111827', marginTop: 2 }}>
           {option.name}
         </div>
-        {option.note && <div style={{ fontSize: 11, color: '#999', marginTop: 1 }}>{option.note}</div>}
+        {option.note && <div style={{ fontSize: 11, color: '#6b7280', marginTop: 1 }}>{option.note}</div>}
       </div>
-      {onClick && rank == null && <span style={{ fontSize: 18, color: '#ccc', flexShrink: 0 }}>＋</span>}
-      {rank != null && draggable && <span style={{ fontSize: 14, color: '#bbb', flexShrink: 0, cursor: 'grab' }}>⠿</span>}
+      {onClick && rank == null && <span style={{ fontSize: 20, color: '#d1d5db', flexShrink: 0 }}>＋</span>}
+      {rank != null && draggable && <span style={{ fontSize: 14, color: '#9ca3af', flexShrink: 0, cursor: 'grab' }}>⠿</span>}
     </div>
   )
 }

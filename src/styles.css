@@ -1,8 +1,57 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0b1628; font-family: Georgia, serif; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a4060; border-radius: 2px; }
-input::placeholder, textarea::placeholder { color: #3a5a7a; }
+
+body {
+  background: #f5f7fa;
+  color: #111827;
+  font-family: Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
+
+input::placeholder,
+textarea::placeholder { color: #9ca3af; }
+
+/* Prevent iOS zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
+  font-family: Georgia, serif;
+}
+
+button { font-family: Georgia, serif; }
+
+/* Responsive ranking grid */
+.rank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 620px) {
+  .rank-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* How-it-works cards */
+.how-cards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.how-card {
+  flex: 1 1 160px;
+  max-width: 200px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }
