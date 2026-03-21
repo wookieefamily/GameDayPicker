@@ -56,7 +56,8 @@ exports.handler = async (event) => {
     if (!teamId) return { statusCode: 400, headers, body: JSON.stringify({ error: "teamId required" }) };
 
     const yr  = season || String(new Date().getFullYear());
-    const res = await fetch(`${base}/teams/${teamId}/schedule?season=${yr}`);
+    // seasontype=2 = regular season (1=preseason/spring training, 3=postseason)
+    const res = await fetch(`${base}/teams/${teamId}/schedule?season=${yr}&seasontype=2`);
     if (!res.ok) return { statusCode: 502, headers, body: JSON.stringify({ error: "ESPN request failed" }) };
 
     const data   = await res.json();
