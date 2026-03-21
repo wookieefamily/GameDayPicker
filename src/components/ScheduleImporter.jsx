@@ -33,12 +33,13 @@ function parseGame(game) {
 function gameToOption(g, idx) {
   const prefix = g.homeAway === 'home' ? 'vs.' : '@'
   return {
-    id:    slugify(g.opponent) + '-' + idx,
-    name:  `${prefix} ${g.opponent}`,
-    date:  g.date,
-    month: g.month,
-    time:  g.time,
-    note:  g.venue || null,
+    id:      slugify(g.opponent) + '-' + idx,
+    name:    `${prefix} ${g.opponent}`,
+    isoDate: g.isoDate,   // "2026-04-05" — for the date input
+    date:    g.date,      // "Sun, Apr 5"  — display format for poll config
+    month:   g.month,
+    time:    g.time,
+    note:    g.venue || null,
   }
 }
 

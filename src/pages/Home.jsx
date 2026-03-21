@@ -95,14 +95,12 @@ export default function Home() {
         {/* Schedule importer */}
         <div style={{ marginTop: 24 }}>
           <ScheduleImporter onImport={imported => setOptions(imported.map(o => ({
-            name: o.name,
-            // Convert back from display format to ISO date for the date input
-            date: '',
-            time: o.time,
-            note: o.note || '',
-            // Carry through pre-computed display values
-            _displayDate: o.date,
-            _month: o.month,
+            name:         o.name,
+            date:         o.isoDate || '',   // populates the date input
+            time:         o.time,
+            note:         o.note || '',
+            _displayDate: o.date,            // pre-formatted display date for poll config
+            _month:       o.month,
           })))} />
         </div>
 
