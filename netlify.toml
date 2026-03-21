@@ -1,7 +1,24 @@
 [build]
+  command   = "npm run build"
+  publish   = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "18"
+
+# API routes — must come before the SPA catch-all
 [[redirects]]
-  from = "/api/votes"
-  to = "/.netlify/functions/votes"
+  from   = "/api/votes"
+  to     = "/.netlify/functions/votes"
+  status = 200
+
+[[redirects]]
+  from   = "/api/polls"
+  to     = "/.netlify/functions/polls"
+  status = 200
+
+# SPA catch-all — lets React Router handle /poll/:slug etc.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
   status = 200

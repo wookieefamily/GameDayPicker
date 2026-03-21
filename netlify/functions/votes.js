@@ -7,44 +7,47 @@ exports.handler = async (event) => {
     "Access-Control-Allow-Origin": "*",
   };
 
-  // Get group from query string, default to "default"
-  const group = (event.queryStringParameters?.group || "default")
-    .replace(/[^a-zA-Z0-9_-]/g, ""); // sanitize
+  const params = event.queryStringParameters || {};
+
+  // Sanitize inputs
+  const poll  = (params.poll  || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  const group = (params.group || "default").replace(/[^a-zA-Z0-9_-]/g, "");
+
+  // If a poll slug is provided, namespace the key as "slug_group",
+  // otherwise fall back to legacy behaviour (just "group") for existing data.
+  const key = poll ? `${poll}_${group}` : group;
 
   if (event.httpMethod === "GET") {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { "X-Master-Key": API_KEY, "X-Bin-Meta": "false" },
     });
     const data = await res.json();
-    const votes = (data[group] || []);
+    const votes = data[key] || [];
     return { statusCode: 200, headers, body: JSON.stringify({ votes }) };
   }
 
   if (event.httpMethod === "PUT") {
-    // Fetch whole bin, update just this group
     const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { "X-Master-Key": API_KEY, "X-Bin-Meta": "false" },
     });
     const existing = await getRes.json();
     const { votes } = JSON.parse(event.body);
-    const updated = { ...existing, [group]: votes };
+    const updated = { ...existing, [key]: votes };
 
-    const putRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
       body: JSON.stringify(updated),
     });
-    const data = await putRes.json();
-    return { statusCode: 200, headers, body: JSON.stringify(data) };
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
   }
 
   if (event.httpMethod === "DELETE") {
-    // Reset just this group
     const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { "X-Master-Key": API_KEY, "X-Bin-Meta": "false" },
     });
     const existing = await getRes.json();
-    const updated = { ...existing, [group]: [] };
+    const updated = { ...existing, [key]: [] };
 
     await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
       method: "PUT",

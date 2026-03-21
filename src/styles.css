@@ -1,0 +1,8 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0b1628; font-family: Georgia, serif; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a4060; border-radius: 2px; }
+input::placeholder, textarea::placeholder { color: #3a5a7a; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
