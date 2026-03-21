@@ -89,12 +89,13 @@ exports.handler = async (event) => {
       const opponent   = otherSide?.team?.displayName ?? "TBD";
 
       return {
-        id:       ev.id,
-        utcDate:  ev.date,          // ISO 8601 UTC string
+        id:          ev.id,
+        utcDate:     ev.date,          // ISO 8601 UTC string
         opponent,
         homeAway,
-        venue:    comp.venue?.fullName ?? "",
-        status:   comp.status?.type?.description ?? "",
+        neutralSite: comp.neutralSite ?? false,
+        venue:       comp.venue?.fullName ?? "",
+        status:      comp.status?.type?.description ?? "",
       };
     }).filter(g => g.utcDate); // drop games without a scheduled date
 

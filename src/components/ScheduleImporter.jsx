@@ -120,8 +120,8 @@ export default function ScheduleImporter({ onImport }) {
   const filtered = useMemo(() => {
     return games.filter(g => {
       if (!days.has(DAYS[g.dow])) return false
-      if (homeAway === 'home'  && g.homeAway !== 'home') return false
-      if (homeAway === 'away'  && g.homeAway !== 'away') return false
+      if (homeAway === 'home'  && (g.homeAway !== 'home' || g.neutralSite)) return false
+      if (homeAway === 'away'  && (g.homeAway !== 'away' || g.neutralSite)) return false
       if (timeFilter === 'day'     && g.localHour >= 17) return false
       if (timeFilter === 'evening' && g.localHour < 17)  return false
       if (timeFilter === 'custom'  && (g.localHour < timeMin || g.localHour >= timeMax)) return false
@@ -271,7 +271,7 @@ export default function ScheduleImporter({ onImport }) {
           <div style={{ marginBottom: 12 }}>
             <div style={{ color: '#6a8aaa', fontSize: 11, marginBottom: 6 }}>Game location</div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {[['home','🏠 Home'],['away','✈️ Away'],['both','Both']].map(([val, lbl]) => (
+              {[['home','🏠 Home'],['away','✈️ Away'],['both','All (incl. neutral)']].map(([val, lbl]) => (
                 <button key={val} onClick={() => setHomeAway(val)}
                   style={{ padding: '5px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 12, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
                     borderColor: homeAway === val ? '#4aacff' : '#2a4060',
