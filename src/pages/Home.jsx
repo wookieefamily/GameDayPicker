@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Spinner from '../components/Spinner.jsx'
 import ErrorBar from '../components/ErrorBar.jsx'
+import ScheduleImporter from '../components/ScheduleImporter.jsx'
 import { createPoll } from '../lib/api.js'
 import { slugify, monthFromIso, formatDate } from '../lib/slugify.js'
 
@@ -33,10 +34,11 @@ export default function Home() {
         .map((o, i) => ({
           id: slugify(o.name) + '-' + i,
           name: o.name.trim(),
-          date: o.date ? formatDate(o.date) : '',
-          month: o.date ? monthFromIso(o.date) : '',
-          time: o.time.trim(),
-          note: o.note.trim() || null,
+          // Imported options carry pre-computed display values; manual ones have an ISO date
+          date:  o._displayDate || (o.date ? formatDate(o.date) : ''),
+          month: o._month       || (o.date ? monthFromIso(o.date) : ''),
+          time:  o.time.trim(),
+          note:  o.note.trim() || null,
         }))
       const { slug } = await createPoll({
         title: title.trim(),
@@ -90,8 +92,22 @@ export default function Home() {
           style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
         />
 
+        {/* Schedule importer */}
+        <div style={{ marginTop: 24 }}>
+          <ScheduleImporter onImport={imported => setOptions(imported.map(o => ({
+            name: o.name,
+            // Convert back from display format to ISO date for the date input
+            date: '',
+            time: o.time,
+            note: o.note || '',
+            // Carry through pre-computed display values
+            _displayDate: o.date,
+            _month: o.month,
+          })))} />
+        </div>
+
         {/* Options */}
-        <div style={{ marginTop: 24, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginTop: 8, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <label style={{ color: '#a0b4cc', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
             Options * (min 2)
           </label>

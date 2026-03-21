@@ -1,3 +1,19 @@
+// ── Schedule import (ESPN proxy) ─────────────────────────────────────────────
+
+export async function fetchTeams(league) {
+  const res = await fetch(`/api/schedule?action=teams&league=${encodeURIComponent(league)}`)
+  if (!res.ok) throw new Error(`Failed to load teams: ${res.status}`)
+  const data = await res.json()
+  return data.teams ?? []
+}
+
+export async function fetchGames(league, teamId, season) {
+  const res = await fetch(`/api/schedule?action=games&league=${encodeURIComponent(league)}&teamId=${encodeURIComponent(teamId)}&season=${encodeURIComponent(season)}`)
+  if (!res.ok) throw new Error(`Failed to load schedule: ${res.status}`)
+  const data = await res.json()
+  return data.games ?? []
+}
+
 // ── Poll configs (Netlify Blobs via serverless function) ──────────────────────
 
 export async function fetchPoll(slug) {

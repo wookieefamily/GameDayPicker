@@ -17,6 +17,11 @@
   to     = "/.netlify/functions/polls"
   status = 200
 
+[[redirects]]
+  from   = "/api/schedule"
+  to     = "/.netlify/functions/schedule"
+  status = 200
+
 # SPA catch-all — lets React Router handle /poll/:slug etc.
 [[redirects]]
   from   = "/*"
