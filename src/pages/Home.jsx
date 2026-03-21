@@ -66,7 +66,7 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
       {/* Header */}
       <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        {brand?.logo && <img src={brand.logo} alt={brand.shortName} style={{ height: 40, width: 40, objectFit: 'contain' }} />}
+        {brand?.logo && <img src={brand.logo} alt={brand.name} style={{ height: 44, width: 44, objectFit: 'contain', borderRadius: 8 }} />}
         <div>
           <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>
             {brand ? brand.name : '🏆 Game Day Picker'}

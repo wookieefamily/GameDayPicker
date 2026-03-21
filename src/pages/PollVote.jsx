@@ -161,7 +161,7 @@ export default function PollVote() {
       <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {brand?.logo && (
-            <img src={brand.logo} alt={brand.shortName} style={{ height: 40, width: 40, objectFit: 'contain', flexShrink: 0 }} />
+            <img src={brand.logo} alt={brand.shortName} style={{ height: 44, width: 44, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
           )}
           <div>
             <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>{poll?.title}</div>
@@ -214,7 +214,7 @@ export default function PollVote() {
           <div style={{ maxWidth: 420, margin: '40px auto', textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>
               {brand?.logo
-                ? <img src={brand.logo} alt="" style={{ height: 64, objectFit: 'contain' }} />
+                ? <img src={brand.logo} alt="" style={{ height: 72, objectFit: 'contain', borderRadius: 10 }} />
                 : sportIcon(poll?.league)
               }
             </div>

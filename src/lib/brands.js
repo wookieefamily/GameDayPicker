@@ -5,7 +5,7 @@ export const BRANDS = {
   cal: {
     name:       'California Golden Bears',
     shortName:  'Cal Golden Bears',
-    logo:       null,
+    logo:       '/cal-logo.png',
     // Primary accent replaces the default orange (#fd5a1e)
     accent:     '#FDB515',           // California Gold
     accentText: '#002676',           // Berkeley Blue — text on gold buttons
