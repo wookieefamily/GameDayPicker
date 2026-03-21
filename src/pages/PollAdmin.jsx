@@ -5,11 +5,21 @@ import ErrorBar from '../components/ErrorBar.jsx'
 import MonthTag from '../components/MonthTag.jsx'
 import { fetchPoll, fetchVotes, deleteVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
+import { getBrand } from '../lib/brands.js'
 
 export default function PollAdmin() {
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
   const group = searchParams.get('group') || 'default'
+
+  // Brand theming
+  const brand    = getBrand(searchParams.get('brand'))
+  const ac       = brand?.accent    ?? '#fd5a1e'
+  const acText   = brand?.accentText ?? 'white'
+  const acRgba   = (a) => brand ? `rgba(${brand.accentRgb},${a})` : `rgba(253,90,30,${a})`
+  const pageBg   = brand?.pageBg   ?? 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)'
+  const headerBg = brand?.headerBg ?? 'linear-gradient(90deg, #0f1f3d, #1a1008)'
+  const brandQ   = brand ? `?brand=${searchParams.get('brand')}` : ''
 
   const [poll,       setPoll]       = useState(null)
   const [votes,      setVotes]      = useState([])
@@ -70,20 +80,25 @@ export default function PollAdmin() {
   const maxScore = Math.max(1, scores[sorted[0]?.id] ?? 1)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)', fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
+    <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
       {/* Header */}
-      <div style={{ background: 'linear-gradient(90deg, #0f1f3d, #1a1008)', borderBottom: '3px solid #fd5a1e', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-        <div>
-          <div style={{ color: '#fd5a1e', fontWeight: 800, fontSize: 20 }}>⚙ Admin — {poll?.title ?? slug}</div>
-          <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
-            {group !== 'default' && (
-              <span style={{ background: 'rgba(253,90,30,0.2)', color: '#fd5a1e', padding: '1px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{group}</span>
-            )}
+      <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {brand?.logo && (
+            <img src={brand.logo} alt={brand.shortName} style={{ height: 40, width: 40, objectFit: 'contain', flexShrink: 0 }} />
+          )}
+          <div>
+            <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>⚙ Admin — {poll?.title ?? slug}</div>
+            <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>
+              {group !== 'default' && (
+                <span style={{ background: acRgba(0.2), color: ac, padding: '1px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{group}</span>
+              )}
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Link to="/" style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(253,90,30,0.15)', color: '#fd5a1e' }}>+ New Poll</Link>
-          <Link to={`/poll/${slug}`} style={{ padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.08)', color: '#a0b4cc' }}>← Back to Poll</Link>
+          <Link to={`/${brandQ}`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: acRgba(0.15), color: ac }}>+ New Poll</Link>
+          <Link to={`/poll/${slug}${brandQ}`} style={{ padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 13, background: 'rgba(255,255,255,0.08)', color: '#a0b4cc' }}>← Back to Poll</Link>
         </div>
       </div>
 
@@ -99,12 +114,13 @@ export default function PollAdmin() {
               {pollUrl}
             </code>
             <button onClick={copyLink}
-              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: copied ? '#4a9e6b' : '#fd5a1e', color: 'white', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: copied ? '#4a9e6b' : ac, color: copied ? 'white' : acText, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               {copied ? '✓ Copied' : 'Copy Link'}
             </button>
           </div>
           <div style={{ color: '#5a7a9a', fontSize: 11, marginTop: 8 }}>
             Add ?group=name to create separate vote pools for different groups.
+            {brand && <span> Add ?brand={searchParams.get('brand')} to show team branding.</span>}
           </div>
         </div>
 
@@ -113,7 +129,7 @@ export default function PollAdmin() {
           <div>
             <h2 style={{ color: 'white', fontSize: 20 }}>Results</h2>
             <p style={{ color: '#7a9abf', fontSize: 13, marginTop: 3 }}>
-              Borda count · {votes.length} voter{votes.length !== 1 ? 's' : ''}
+              Highest overall rank · {votes.length} voter{votes.length !== 1 ? 's' : ''}
               {votes.length > 0 && ': ' + votes.map(v => v.name).join(', ')}
             </p>
           </div>
@@ -140,7 +156,7 @@ export default function PollAdmin() {
               const pct   = (sc / maxScore) * 100
               const medal = ['🥇','🥈','🥉'][i] ?? null
               return (
-                <div key={o.id} style={{ background: i < 3 ? 'rgba(253,90,30,.08)' : 'rgba(255,255,255,.04)', border: i < 3 ? '1px solid rgba(253,90,30,.25)' : '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={o.id} style={{ background: i < 3 ? acRgba(0.08) : 'rgba(255,255,255,.04)', border: i < 3 ? `1px solid ${acRgba(0.25)}` : '1px solid rgba(255,255,255,.06)', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{ fontSize: 18, width: 28, textAlign: 'center', flexShrink: 0 }}>
                     {medal ?? <span style={{ color: '#3a5070', fontSize: 13, fontWeight: 700 }}>#{i+1}</span>}
                   </span>
@@ -151,11 +167,11 @@ export default function PollAdmin() {
                     </div>
                     <div style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>{o.name}</div>
                     <div style={{ marginTop: 5, height: 5, background: '#1a3050', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? '#fd5a1e' : i < 3 ? '#f0a060' : '#3a6090', transition: 'width .6s ease' }} />
+                      <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? brand?.accentRgb ? acRgba(0.7) : '#f0a060' : '#3a6090', transition: 'width .6s ease' }} />
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: i < 3 ? '#fd5a1e' : '#a0b4cc', fontWeight: 800, fontSize: 18 }}>{sc}</div>
+                    <div style={{ color: i < 3 ? ac : '#a0b4cc', fontWeight: 800, fontSize: 18 }}>{sc}</div>
                     <div style={{ color: '#4a6a8a', fontSize: 10 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
                   </div>
                 </div>
@@ -177,7 +193,7 @@ export default function PollAdmin() {
                       const o = options.find(x => x.id === id)
                       return (
                         <span key={id} style={{ background: '#0f1f3d', border: '1px solid #2a4060', borderRadius: 6, padding: '2px 8px', fontSize: 11, color: '#a0b4cc' }}>
-                          <span style={{ color: '#fd5a1e', fontWeight: 800 }}>#{rank+1}</span> {o?.name ?? id}
+                          <span style={{ color: ac, fontWeight: 800 }}>#{rank+1}</span> {o?.name ?? id}
                         </span>
                       )
                     })}
