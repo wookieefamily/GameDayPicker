@@ -7,6 +7,12 @@ import MonthTag from '../components/MonthTag.jsx'
 import { fetchPoll, fetchVotes, pushVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 
+const SPORT_ICONS = {
+  mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒',
+  ncaaf: '🏈', ncaab: '🏀', mls: '⚽',
+}
+const sportIcon = league => SPORT_ICONS[league] || '🏆'
+
 export default function PollVote() {
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
@@ -179,7 +185,7 @@ export default function PollVote() {
         {/* NAME step */}
         {view === 'vote' && step === 'name' && (
           <div style={{ maxWidth: 420, margin: '40px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>⚾</div>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>{sportIcon(poll?.league)}</div>
             <h2 style={{ color: 'white', fontSize: 22, marginBottom: 8 }}>Who's voting?</h2>
             <p style={{ color: '#7a9abf', fontSize: 14, marginBottom: 24 }}>Rank your favorites to help the group decide.</p>
             <input

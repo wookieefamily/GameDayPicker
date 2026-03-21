@@ -13,6 +13,7 @@ export default function Home() {
   const [title, setTitle]       = useState('')
   const [desc, setDesc]         = useState('')
   const [options, setOptions]   = useState([EMPTY_OPTION(), EMPTY_OPTION()])
+  const [league, setLeague]     = useState(null)
   const [saving, setSaving]     = useState(false)
   const [error, setError]       = useState(null)
 
@@ -44,6 +45,7 @@ export default function Home() {
         title: title.trim(),
         description: desc.trim(),
         options: validOptions,
+        league: league ?? undefined,
       })
       navigate(`/poll/${slug}`, { state: { justCreated: true } })
     } catch (e) {
@@ -57,7 +59,7 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #0b1628 0%, #0f2040 55%, #1a0e05 100%)', fontFamily: 'Georgia, serif', paddingBottom: 56 }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(90deg, #0f1f3d, #1a1008)', borderBottom: '3px solid #fd5a1e', padding: '16px 20px' }}>
-        <div style={{ color: '#fd5a1e', fontWeight: 800, fontSize: 20 }}>🗳 Poll Builder</div>
+        <div style={{ color: '#fd5a1e', fontWeight: 800, fontSize: 20 }}>🏆 Game Day Picker</div>
         <div style={{ color: '#a0b4cc', fontSize: 12, marginTop: 2 }}>Create a ranked-choice voting poll · Share the link</div>
       </div>
 
@@ -94,14 +96,17 @@ export default function Home() {
 
         {/* Schedule importer */}
         <div style={{ marginTop: 24 }}>
-          <ScheduleImporter onImport={imported => setOptions(imported.map(o => ({
-            name:         o.name,
-            date:         o.isoDate || '',   // populates the date input
-            time:         o.time,
-            note:         o.note || '',
-            _displayDate: o.date,            // pre-formatted display date for poll config
-            _month:       o.month,
-          })))} />
+          <ScheduleImporter onImport={(imported, importedLeague) => {
+            setLeague(importedLeague)
+            setOptions(imported.map(o => ({
+              name:         o.name,
+              date:         o.isoDate || '',
+              time:         o.time,
+              note:         o.note || '',
+              _displayDate: o.date,
+              _month:       o.month,
+            })))
+          }} />
         </div>
 
         {/* Options */}

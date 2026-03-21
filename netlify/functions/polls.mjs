@@ -63,7 +63,7 @@ export default async (req) => {
         return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers });
       }
 
-      const { title, description, options } = body;
+      const { title, description, options, league } = body;
       if (!title || !Array.isArray(options) || options.length < 2) {
         return new Response(
           JSON.stringify({ error: "title and at least 2 options are required" }),
@@ -86,6 +86,7 @@ export default async (req) => {
         title: title.trim(),
         description: (description ?? "").trim(),
         options,
+        league: league ?? null,
         createdAt: Date.now(),
       };
 
