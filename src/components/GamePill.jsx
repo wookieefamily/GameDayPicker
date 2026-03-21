@@ -30,13 +30,13 @@ export default function GamePill({ option, rank, onClick, draggable, onDragStart
           <span style={{ fontSize: 11, color: '#888', fontWeight: 600 }}>{option.date}</span>
           {option.time && <span style={{ fontSize: 11, color: '#aaa' }}>{option.time}</span>}
         </div>
-        <div style={{ fontWeight: 700, fontSize: 14, color: '#111827', marginTop: 2 }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: '#1a3a5c', marginTop: 2 }}>
           {option.name}
         </div>
-        {option.note && <div style={{ fontSize: 11, color: '#6b7280', marginTop: 1 }}>{option.note}</div>}
+        {option.note && <div style={{ fontSize: 11, color: '#5a7a9a', marginTop: 1 }}>{option.note}</div>}
       </div>
-      {onClick && rank == null && <span style={{ fontSize: 20, color: '#d1d5db', flexShrink: 0 }}>＋</span>}
-      {rank != null && draggable && <span style={{ fontSize: 14, color: '#9ca3af', flexShrink: 0, cursor: 'grab' }}>⠿</span>}
+      {onClick && rank == null && <span style={{ fontSize: 22, color: '#d1d5db', flexShrink: 0 }}>＋</span>}
+      {rank != null && draggable && <span style={{ fontSize: 16, color: '#8aa3be', flexShrink: 0, cursor: 'grab' }}>⠿</span>}
     </div>
   )
 }

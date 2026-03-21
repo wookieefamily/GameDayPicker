@@ -140,7 +140,7 @@ export default function ScheduleImporter({ onImport }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px dashed #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', marginBottom: 6, fontWeight: 600 }}
+        style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px dashed #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: 17, fontFamily: 'inherit', cursor: 'pointer', marginBottom: 6, fontWeight: 600 }}
       >
         📅 Import from Team Schedule
       </button>
@@ -150,8 +150,8 @@ export default function ScheduleImporter({ onImport }) {
   return (
     <div style={{ background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 14, padding: 20, marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-        <span style={{ color: '#1d4ed8', fontWeight: 700, fontSize: 15 }}>📅 Import from Team Schedule</span>
-        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>✕</button>
+        <span style={{ color: '#1d4ed8', fontWeight: 700, fontSize: 17 }}>📅 Import from Team Schedule</span>
+        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#8aa3be', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>✕</button>
       </div>
 
       {/* Step 1: League */}
@@ -159,14 +159,14 @@ export default function ScheduleImporter({ onImport }) {
         <label style={labelStyle}>1. League</label>
         {LEAGUE_GROUPS.map(group => (
           <div key={group.label} style={{ marginBottom: 12 }}>
-            <div style={{ color: '#6b7280', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{group.label}</div>
+            <div style={{ color: '#5a7a9a', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{group.label}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {group.leagues.map(l => (
                 <button key={l.key} onClick={() => setLeague(l.key)}
-                  style={{ padding: '6px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
+                  style={{ padding: '6px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
                     borderColor: league === l.key ? '#2563eb' : '#d1d5db',
                     background:  league === l.key ? '#eff6ff' : 'white',
-                    color:       league === l.key ? '#1d4ed8' : '#6b7280',
+                    color:       league === l.key ? '#1d4ed8' : '#5a7a9a',
                   }}>
                   {l.label}
                 </button>
@@ -180,7 +180,7 @@ export default function ScheduleImporter({ onImport }) {
       <div style={{ marginBottom: 18 }}>
         <label style={labelStyle}>2. Team</label>
         {loadingTeams
-          ? <div style={{ color: '#6b7280', fontSize: 14 }}><Spinner />Loading teams…</div>
+          ? <div style={{ color: '#5a7a9a', fontSize: 16 }}><Spinner />Loading teams…</div>
           : (
             <>
               <input
@@ -192,15 +192,15 @@ export default function ScheduleImporter({ onImport }) {
               {teamQuery && !selectedTeam && (
                 <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 10, marginTop: 4, background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                   {filteredTeams.length === 0
-                    ? <div style={{ padding: '12px 16px', color: '#6b7280', fontSize: 14 }}>No teams found</div>
+                    ? <div style={{ padding: '12px 16px', color: '#5a7a9a', fontSize: 16 }}>No teams found</div>
                     : filteredTeams.map(t => (
                       <div key={t.id} onClick={() => { setSelectedTeam(t); setTeamQuery(t.name); setGames([]) }}
-                        style={{ padding: '10px 16px', cursor: 'pointer', color: '#111827', fontSize: 14, borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        style={{ padding: '10px 16px', cursor: 'pointer', color: '#1a3a5c', fontSize: 16, borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
                         <span>{t.name}</span>
-                        <span style={{ color: '#9ca3af', fontSize: 12 }}>{t.abbreviation}</span>
+                        <span style={{ color: '#8aa3be', fontSize: 12 }}>{t.abbreviation}</span>
                       </div>
                     ))
                   }
@@ -208,9 +208,9 @@ export default function ScheduleImporter({ onImport }) {
               )}
               {selectedTeam && (
                 <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: 8, padding: '6px 12px' }}>
-                  <span style={{ color: '#1d4ed8', fontSize: 14, fontWeight: 700 }}>{selectedTeam.name}</span>
+                  <span style={{ color: '#1d4ed8', fontSize: 16, fontWeight: 700 }}>{selectedTeam.name}</span>
                   <button onClick={() => { setSelectedTeam(null); setTeamQuery(''); setGames([]) }}
-                    style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>✕</button>
+                    style={{ background: 'none', border: 'none', color: '#8aa3be', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>✕</button>
                 </div>
               )}
             </>
@@ -230,13 +230,13 @@ export default function ScheduleImporter({ onImport }) {
             />
           </div>
           <button onClick={loadGames} disabled={loadingGames}
-            style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: loadingGames ? '#e5e7eb' : '#2563eb', color: loadingGames ? '#9ca3af' : 'white', fontSize: 14, fontWeight: 800, fontFamily: 'inherit', cursor: loadingGames ? 'default' : 'pointer', marginBottom: 1 }}>
+            style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: loadingGames ? '#e5e7eb' : '#2563eb', color: loadingGames ? '#8aa3be' : 'white', fontSize: 16, fontWeight: 800, fontFamily: 'inherit', cursor: loadingGames ? 'default' : 'pointer', marginBottom: 1 }}>
             {loadingGames ? <><Spinner />Loading…</> : 'Load Schedule'}
           </button>
         </div>
       )}
 
-      {error && <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12, padding: '8px 12px', background: '#fef2f2', borderRadius: 8 }}>⚠️ {error}</div>}
+      {error && <div style={{ color: '#dc2626', fontSize: 16, marginBottom: 12, padding: '8px 12px', background: '#fef2f2', borderRadius: 8 }}>⚠️ {error}</div>}
 
       {/* Step 4: Filters */}
       {games.length > 0 && (
@@ -246,14 +246,14 @@ export default function ScheduleImporter({ onImport }) {
 
           {/* Day of week */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ color: '#6b7280', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Days of week</div>
+            <div style={{ color: '#5a7a9a', fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Days of week</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {DAYS.map((day, i) => (
                 <button key={day} onClick={() => toggleDay(day)}
                   style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
                     borderColor: days.has(day) ? '#2563eb' : '#d1d5db',
                     background:  days.has(day) ? '#eff6ff' : 'white',
-                    color:       days.has(day) ? '#1d4ed8' : '#9ca3af',
+                    color:       days.has(day) ? '#1d4ed8' : '#8aa3be',
                   }}>
                   {DAY_SHORT[i][0]}
                 </button>
@@ -263,14 +263,14 @@ export default function ScheduleImporter({ onImport }) {
 
           {/* Home / Away */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ color: '#6b7280', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Game location</div>
+            <div style={{ color: '#5a7a9a', fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Game location</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[['home','🏠 Home'],['away','✈️ Away'],['both','All (incl. neutral)']].map(([val, lbl]) => (
                 <button key={val} onClick={() => setHomeAway(val)}
-                  style={{ padding: '7px 16px', borderRadius: 20, border: '1.5px solid', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
+                  style={{ padding: '7px 16px', borderRadius: 20, border: '1.5px solid', fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
                     borderColor: homeAway === val ? '#2563eb' : '#d1d5db',
                     background:  homeAway === val ? '#eff6ff' : 'white',
-                    color:       homeAway === val ? '#1d4ed8' : '#6b7280',
+                    color:       homeAway === val ? '#1d4ed8' : '#5a7a9a',
                   }}>
                   {lbl}
                 </button>
@@ -280,14 +280,14 @@ export default function ScheduleImporter({ onImport }) {
 
           {/* Time of day */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ color: '#6b7280', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Time of day</div>
+            <div style={{ color: '#5a7a9a', fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Time of day</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[['all','All times'],['day','☀️ Day (<5pm)'],['evening','🌙 Evening (≥5pm)'],['custom','Custom range']].map(([val, lbl]) => (
                 <button key={val} onClick={() => setTimeFilter(val)}
-                  style={{ padding: '7px 16px', borderRadius: 20, border: '1.5px solid', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
+                  style={{ padding: '7px 16px', borderRadius: 20, border: '1.5px solid', fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 600,
                     borderColor: timeFilter === val ? '#2563eb' : '#d1d5db',
                     background:  timeFilter === val ? '#eff6ff' : 'white',
-                    color:       timeFilter === val ? '#1d4ed8' : '#6b7280',
+                    color:       timeFilter === val ? '#1d4ed8' : '#5a7a9a',
                   }}>
                   {lbl}
                 </button>
@@ -295,24 +295,24 @@ export default function ScheduleImporter({ onImport }) {
             </div>
             {timeFilter === 'custom' && (
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-                <span style={{ color: '#6b7280', fontSize: 13 }}>From</span>
+                <span style={{ color: '#5a7a9a', fontSize: 15 }}>From</span>
                 <input type="number" value={timeMin} min={0} max={23} onChange={e => setTimeMin(Number(e.target.value))}
                   style={{ ...inputStyle, width: 75 }} />
-                <span style={{ color: '#6b7280', fontSize: 13 }}>to</span>
+                <span style={{ color: '#5a7a9a', fontSize: 15 }}>to</span>
                 <input type="number" value={timeMax} min={0} max={23} onChange={e => setTimeMax(Number(e.target.value))}
                   style={{ ...inputStyle, width: 75 }} />
-                <span style={{ color: '#9ca3af', fontSize: 13 }}>(24h local time)</span>
+                <span style={{ color: '#8aa3be', fontSize: 15 }}>(24h local time)</span>
               </div>
             )}
           </div>
 
           {/* Preview + import */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, paddingTop: 4 }}>
-            <span style={{ color: '#374151', fontSize: 14, fontWeight: 600 }}>
+            <span style={{ color: '#2c4a6e', fontSize: 16, fontWeight: 600 }}>
               {filtered.length} of {games.length} games match
             </span>
             <button onClick={handleImport} disabled={filtered.length === 0}
-              style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: filtered.length ? '#fd5a1e' : '#e5e7eb', color: filtered.length ? 'white' : '#9ca3af', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: filtered.length ? 'pointer' : 'default', boxShadow: filtered.length ? '0 2px 8px rgba(253,90,30,0.25)' : 'none' }}>
+              style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: filtered.length ? '#fd5a1e' : '#e5e7eb', color: filtered.length ? 'white' : '#8aa3be', fontSize: 17, fontWeight: 700, fontFamily: 'inherit', cursor: filtered.length ? 'pointer' : 'default', boxShadow: filtered.length ? '0 2px 8px rgba(253,90,30,0.25)' : 'none' }}>
               Import {filtered.length} Games →
             </button>
           </div>
@@ -323,12 +323,12 @@ export default function ScheduleImporter({ onImport }) {
 }
 
 const labelStyle = {
-  display: 'block', color: '#374151', fontSize: 12, fontWeight: 700,
+  display: 'block', color: '#2c4a6e', fontSize: 12, fontWeight: 700,
   textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8,
 }
 
 const inputStyle = {
   width: '100%', padding: '10px 14px', borderRadius: 10,
-  border: '1.5px solid #d1d5db', background: 'white', color: '#111827',
-  fontSize: 15, fontFamily: 'inherit', outline: 'none', display: 'block',
+  border: '1.5px solid #d1d5db', background: 'white', color: '#1a3a5c',
+  fontSize: 17, fontFamily: 'inherit', outline: 'none', display: 'block',
 }
