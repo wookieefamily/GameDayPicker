@@ -118,6 +118,21 @@ export default async (req) => {
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
     }
 
+    // DELETE /api/polls?wipe=all  — remove all poll blobs (beta reset)
+    if (req.method === "DELETE") {
+      const wipe = url.searchParams.get("wipe")
+      if (wipe === "all") {
+        const { blobs } = await store.list()
+        await Promise.all(blobs.map(b => store.delete(b.key)))
+        return new Response(JSON.stringify({ ok: true, deleted: blobs.map(b => b.key) }), { status: 200, headers })
+      }
+      const rawSlug = url.searchParams.get("slug") ?? ""
+      const slug = rawSlug.replace(/[^a-z0-9_-]/g, "")
+      if (!slug) return new Response(JSON.stringify({ error: "slug or wipe=all required" }), { status: 400, headers })
+      await store.delete(slug)
+      return new Response(JSON.stringify({ ok: true, deleted: slug }), { status: 200, headers })
+    }
+
     return new Response("Method not allowed", { status: 405, headers });
 
   } catch (err) {
