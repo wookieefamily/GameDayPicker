@@ -56,7 +56,9 @@ export default function PollVote() {
   const [searchParams] = useSearchParams()
   const group = searchParams.get('group') || 'default'
   const location = useLocation()
-  const justCreated = location.state?.justCreated === true
+  const justCreated  = location.state?.justCreated === true
+  // Admin token: from creation state (fresh) or localStorage (returning organizer)
+  const adminToken   = location.state?.adminToken ?? localStorage.getItem(`gdp:admin:${slug}`) ?? null
 
   const brand    = getBrand(searchParams.get('brand'))
   const ac       = brand?.accent    ?? '#fd5a1e'
@@ -65,6 +67,9 @@ export default function PollVote() {
   const pageBg   = brand?.pageBg   ?? '#f5f7fa'
   const headerBg = brand?.headerBg ?? '#ffffff'
   const brandQ   = brand ? `?brand=${searchParams.get('brand')}` : ''
+
+  // adminUrl must be computed AFTER brandQ is defined
+  const adminUrl = adminToken ? `/poll/${slug}/admin?token=${adminToken}${brandQ ? '&' + brandQ.slice(1) : ''}` : null
 
   const [poll,       setPoll]       = useState(null)
   const [view,       setView]       = useState('vote')
@@ -232,7 +237,7 @@ export default function PollVote() {
             {copied ? '✓ Copied' : '🔗 Share'}
           </button>
           <Link to={`/${brandQ}`} style={{ padding: '8px 13px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 15, background: acRgba(0.1), color: ac, whiteSpace: 'nowrap' }}>+ New</Link>
-          <Link to={`/poll/${slug}/admin${brandQ}`} style={{ padding: '8px 13px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 15, background: '#f3f4f6', color: '#5a7a9a' }}>⚙</Link>
+          {adminUrl && <Link to={adminUrl} style={{ padding: '8px 13px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 15, background: acRgba(0.1), color: ac, whiteSpace: 'nowrap' }}>⚙ Admin</Link>}
         </div>
       </div>
 
@@ -240,16 +245,41 @@ export default function PollVote() {
 
       {/* Share banner */}
       {justCreated && (
-        <div style={{ background: '#fffbeb', borderBottom: '1px solid #fde68a', padding: '14px 16px' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ color: '#92400e', fontWeight: 800, fontSize: 17, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
-              <code style={{ color: '#b45309', fontSize: 15, wordBreak: 'break-all' }}>{pollUrl}</code>
+        <div style={{ background: '#fffbeb', borderBottom: '1px solid #fde68a', padding: '16px 16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto' }}>
+            {/* Voter share link */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: adminUrl ? 14 : 0 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: '#92400e', fontWeight: 800, fontSize: 17, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
+                <code style={{ color: '#b45309', fontSize: 14, wordBreak: 'break-all' }}>{pollUrl}</code>
+              </div>
+              <button onClick={copyLink}
+                style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#16a34a' : ac, color: 'white', fontWeight: 800, fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {copied ? '✓ Copied!' : '📋 Copy Link'}
+              </button>
             </div>
-            <button onClick={copyLink}
-              style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#16a34a' : ac, color: 'white', fontWeight: 800, fontSize: 16, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              {copied ? '✓ Copied!' : '📋 Copy Link'}
-            </button>
+            {/* Admin link — save this! */}
+            {adminUrl && (
+              <div style={{ background: 'white', border: '1.5px solid #fbbf24', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ color: '#92400e', fontWeight: 800, fontSize: 14, marginBottom: 6 }}>
+                  🔐 Your organizer link — bookmark this, only you get it:
+                </div>
+                <code style={{ display: 'block', color: '#78350f', fontSize: 12, wordBreak: 'break-all', background: '#fffbeb', padding: '6px 10px', borderRadius: 6, marginBottom: 8 }}>
+                  {window.location.origin}{adminUrl}
+                </code>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${adminUrl}`).catch(()=>{})}
+                    style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#fbbf24', color: '#78350f', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    📋 Copy Organizer Link
+                  </button>
+                  <Link to={adminUrl}
+                    style={{ padding: '7px 14px', borderRadius: 8, background: '#92400e', color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
+                    Go to Admin →
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

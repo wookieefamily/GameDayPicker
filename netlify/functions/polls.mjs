@@ -71,6 +71,7 @@ export default async (req) => {
         );
       }
 
+      const adminToken = crypto.randomUUID();
       let slug = slugify(title) || "poll";
 
       // Ensure uniqueness
@@ -87,6 +88,7 @@ export default async (req) => {
         description: (description ?? "").trim(),
         options,
         league: league ?? null,
+        adminToken,
         createdAt: Date.now(),
       };
 
@@ -98,7 +100,7 @@ export default async (req) => {
       const verify = await store.get(slug);
       console.log("POST verify:", verify ? "ok" : "MISSING");
 
-      return new Response(JSON.stringify({ slug }), { status: 201, headers });
+      return new Response(JSON.stringify({ slug, adminToken }), { status: 201, headers });
     }
 
     // PATCH /api/polls?slug=foo  — update fields (e.g. winner)

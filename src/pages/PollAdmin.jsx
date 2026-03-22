@@ -13,6 +13,7 @@ export default function PollAdmin() {
   const [searchParams] = useSearchParams()
   const group = searchParams.get('group') || 'default'
 
+  const token    = searchParams.get('token')  // secret admin token
   const brand    = getBrand(searchParams.get('brand'))
   const ac       = brand?.accent    ?? '#fd5a1e'
   const acText   = brand?.accentText ?? 'white'
@@ -20,6 +21,9 @@ export default function PollAdmin() {
   const pageBg   = brand?.pageBg   ?? '#f5f7fa'
   const headerBg = brand?.headerBg ?? '#ffffff'
   const brandQ   = brand ? `?brand=${searchParams.get('brand')}` : ''
+  const tokenQ   = token ? `token=${token}` : ''
+  const adminQ   = [brandQ.replace('?',''), tokenQ].filter(Boolean).join('&')
+  const fullAdminQ = adminQ ? `?${adminQ}` : ''
 
   const [poll,       setPoll]       = useState(null)
   const [votes,      setVotes]      = useState([])
@@ -93,6 +97,23 @@ export default function PollAdmin() {
   const sorted   = [...options].sort((a, b) => scores[b.id] - scores[a.id])
   const maxScore = Math.max(1, scores[sorted[0]?.id] ?? 1)
 
+  // Token validation — only enforce if poll has an adminToken (new polls have one; old polls don't)
+  const unauthorized = !loading && poll && poll.adminToken && poll.adminToken !== token
+  if (unauthorized) {
+    return (
+      <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+        <h2 style={{ color: '#1a3a5c', fontSize: 24, fontWeight: 800, marginBottom: 10 }}>Admin access required</h2>
+        <p style={{ color: '#5a7a9a', fontSize: 16, textAlign: 'center', maxWidth: 380, marginBottom: 24, lineHeight: 1.6 }}>
+          This admin page is only accessible via the private link shown when the poll was created.
+        </p>
+        <Link to={`/poll/${slug}${brandQ}`} style={{ padding: '12px 24px', borderRadius: 10, background: ac, color: acText, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
+          ← Back to Poll
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'inherit', paddingBottom: 64 }}>
 
@@ -115,6 +136,9 @@ export default function PollAdmin() {
         <div style={{ display: 'flex', gap: 8 }}>
           <Link to={`/${brandQ}`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 15, background: acRgba(0.1), color: ac }}>+ New Poll</Link>
           <Link to={`/poll/${slug}${brandQ}`} style={{ padding: '8px 14px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 15, background: '#f3f4f6', color: '#2c4a6e' }}>← Back to Poll</Link>
+          {token && (
+            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/poll/${slug}/admin${fullAdminQ}`).catch(()=>{}) }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 15, background: acRgba(0.15), color: ac, cursor: 'pointer', fontFamily: 'inherit' }}>📋 Copy Admin Link</button>
+          )}
         </div>
       </div>
 

@@ -50,13 +50,15 @@ export default function Home() {
           time:    o.time.trim(),
           note:    o.note.trim() || null,
         }))
-      const { slug } = await createPoll({
+      const { slug, adminToken } = await createPoll({
         title: title.trim(),
         description: desc.trim(),
         options: validOptions,
         league: league ?? undefined,
       })
-      navigate(`/poll/${slug}${brandKey ? `?brand=${brandKey}` : ''}`, { state: { justCreated: true } })
+      // Persist token so organizer can always get back to admin from this device
+      if (adminToken) localStorage.setItem(`gdp:admin:${slug}`, adminToken)
+      navigate(`/poll/${slug}${brandKey ? `?brand=${brandKey}` : ''}`, { state: { justCreated: true, adminToken } })
     } catch (e) {
       setError(e.message)
     } finally {
