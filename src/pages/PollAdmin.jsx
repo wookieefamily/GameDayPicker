@@ -3,7 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom'
 import Spinner from '../components/Spinner.jsx'
 import ErrorBar from '../components/ErrorBar.jsx'
 import MonthTag from '../components/MonthTag.jsx'
-import { fetchPoll, fetchVotes, deleteVotes } from '../lib/api.js'
+import { fetchPoll, fetchVotes, deleteVotes, updatePoll } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 import { getBrand } from '../lib/brands.js'
 import { downloadICS, googleCalendarUrl } from '../lib/calendar.js'
@@ -27,6 +27,7 @@ export default function PollAdmin() {
   const [resetting,  setResetting]  = useState(false)
   const [error,      setError]      = useState(null)
   const [copied,     setCopied]     = useState(false)
+  const [settingWinner, setSettingWinner] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -55,6 +56,19 @@ export default function PollAdmin() {
       setError("Couldn't reset votes. " + e.message)
     } finally {
       setResetting(false)
+    }
+  }
+
+  const handleSetWinner = async (optionId) => {
+    setSettingWinner(true)
+    try {
+      const newWinner = poll.winner === optionId ? null : optionId  // toggle off if already set
+      await updatePoll(slug, { winner: newWinner })
+      setPoll(p => ({ ...p, winner: newWinner }))
+    } catch (e) {
+      setError("Couldn't set winner. " + e.message)
+    } finally {
+      setSettingWinner(false)
     }
   }
 
@@ -154,74 +168,91 @@ export default function PollAdmin() {
         {!loading && votes.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {sorted.map((o, i) => {
-              const sc    = scores[o.id]
-              const pct   = (sc / maxScore) * 100
-              const medal = ['🥇','🥈','🥉'][i] ?? null
-              return (
-                <div key={o.id} style={{ background: 'white', border: i < 3 ? `1.5px solid ${acRgba(0.35)}` : '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: i === 0 ? '0 2px 8px rgba(253,90,30,0.1)' : '0 1px 3px rgba(0,0,0,0.04)' }}>
-                  <span style={{ fontSize: 22, width: 30, textAlign: 'center', flexShrink: 0 }}>
-                    {medal ?? <span style={{ color: '#8aa3be', fontSize: 16, fontWeight: 700 }}>#{i+1}</span>}
-                  </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                      {o.month && <MonthTag month={o.month} />}
-                      {o.date && <span style={{ color: '#3a5a80', fontSize: 12, fontWeight: 600 }}>{o.date}</span>}
-                    </div>
-                    <div style={{ fontWeight: 700, fontSize: 17, color: '#1a3a5c' }}>{o.name}</div>
-                    <div style={{ marginTop: 6, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
-                    </div>
-                    {(() => {
-                      const who = votes.filter(v => v.ranking.includes(o.id))
-                        .map(v => `${v.name} #${v.ranking.indexOf(o.id) + 1}`)
-                      return who.length > 0 ? (
-                        <div style={{ marginTop: 5, fontSize: 11, color: '#8aa3be', lineHeight: 1.5 }}>
-                          {who.join(' · ')}
-                        </div>
-                      ) : null
-                    })()}
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ color: i < 3 ? ac : '#2c4a6e', fontWeight: 800, fontSize: 22 }}>{sc}</div>
-                    <div style={{ color: '#8aa3be', fontSize: 11 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
-                  </div>
-                </div>
-              )
-            })}
+  const sc         = scores[o.id]
+  const pct        = (sc / maxScore) * 100
+  const medal      = ['🥇','🥈','🥉'][i] ?? null
+  const isWinner   = poll?.winner === o.id
+  const cantGoList = votes.filter(v => v.cantGo?.includes(o.id)).map(v => v.name)
+  const rankedBy   = votes.filter(v => v.ranking.includes(o.id))
+                          .map(v => `${v.name} #${v.ranking.indexOf(o.id) + 1}`)
+  return (
+    <div key={o.id} style={{ background: isWinner ? '#f0fdf4' : 'white', border: isWinner ? '2px solid #16a34a' : i < 3 ? `1.5px solid ${acRgba(0.35)}` : '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'flex-start', gap: 12, boxShadow: isWinner ? '0 2px 8px rgba(22,163,74,0.15)' : i === 0 ? '0 2px 8px rgba(253,90,30,0.1)' : '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <span style={{ fontSize: 20, width: 30, textAlign: 'center', flexShrink: 0, paddingTop: 2 }}>
+        {isWinner ? '👑' : (medal ?? <span style={{ color: '#8aa3be', fontSize: 14, fontWeight: 700 }}>#{i+1}</span>)}
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+          {o.month && <MonthTag month={o.month} />}
+          {o.date && <span style={{ color: '#3a5a80', fontSize: 12, fontWeight: 600 }}>{o.date}</span>}
+          {isWinner && <span style={{ background: '#16a34a', color: 'white', fontSize: 10, fontWeight: 800, padding: '1px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 0.5 }}>Organizer's Pick</span>}
+        </div>
+        <div style={{ fontWeight: 700, fontSize: 17, color: '#1a3a5c' }}>{o.name}</div>
+        <div style={{ marginTop: 6, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: isWinner ? '#16a34a' : i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
+        </div>
+        {rankedBy.length > 0 && (
+          <div style={{ marginTop: 5, fontSize: 11, color: '#8aa3be', lineHeight: 1.5 }}>
+            {rankedBy.join(' · ')}
+          </div>
+        )}
+        {cantGoList.length > 0 && (
+          <div style={{ marginTop: 4, fontSize: 11, color: '#dc2626', fontWeight: 600 }}>
+            🚫 Can't go: {cantGoList.join(', ')}
+          </div>
+        )}
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div style={{ color: isWinner ? '#16a34a' : i < 3 ? ac : '#2c4a6e', fontWeight: 800, fontSize: 22 }}>{sc}</div>
+        <div style={{ color: '#8aa3be', fontSize: 11, marginBottom: 8 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
+        <button
+          onClick={() => handleSetWinner(o.id)}
+          disabled={settingWinner}
+          style={{ padding: '5px 10px', borderRadius: 8, border: `1.5px solid ${isWinner ? '#16a34a' : '#d1d5db'}`, background: isWinner ? '#16a34a' : 'white', color: isWinner ? 'white' : '#5a7a9a', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+          {isWinner ? '✓ Winner' : 'Set Winner'}
+        </button>
+      </div>
+    </div>
+  )
+})}
           </div>
         )}
 
         {/* Make it Official */}
-        {!loading && votes.length > 0 && sorted[0]?.isoDate && (
-          <div style={{ marginTop: 28, background: 'linear-gradient(135deg, #fff7ed, #fef3c7)', border: '2px solid #fed7aa', borderRadius: 16, padding: '20px 22px' }}>
-            <div style={{ fontWeight: 800, fontSize: 19, color: '#9a3412', marginBottom: 4 }}>
-              🏆 Your group picked it — now make it official!
-            </div>
-            <div style={{ color: '#c2410c', fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
-              {sorted[0].name}{sorted[0].date ? ` · ${sorted[0].date}` : ''}{sorted[0].time ? ` · ${sorted[0].time}` : ''}
-            </div>
-            {sorted[0].note && <div style={{ color: '#9a3412', fontSize: 14, marginBottom: 14 }}>📍 {sorted[0].note}</div>}
-            {!sorted[0].note && <div style={{ marginBottom: 14 }} />}
-            <div style={{ fontSize: 15, color: '#7c2d12', marginBottom: 14 }}>
-              Add the game to your calendar and share it with your crew:
-            </div>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button
-                onClick={() => downloadICS(sorted[0], poll?.title, pollUrl)}
-                style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: ac, color: acText, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
-                📅 Download .ics
-              </button>
-              {googleCalendarUrl(sorted[0], poll?.title, pollUrl) && (
-                <a href={googleCalendarUrl(sorted[0], poll?.title, pollUrl)} target="_blank" rel="noopener noreferrer"
-                  style={{ padding: '11px 20px', borderRadius: 10, border: '2px solid #ea580c', background: 'white', color: '#ea580c', fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-block' }}>
-                  📅 Google Calendar
-                </a>
-              )}
-            </div>
-            <div style={{ marginTop: 12, fontSize: 13, color: '#9a3412', opacity: 0.7 }}>
-              Works with Apple Calendar, Google Calendar, Outlook, and more.
-            </div>
-          </div>
+        {!loading && votes.length > 0 && (poll?.winner ? options.find(o => o.id === poll.winner) : sorted[0])?.isoDate && (
+          (() => {
+            const featuredOption = (poll?.winner ? options.find(o => o.id === poll.winner) : sorted[0]) ?? sorted[0]
+            return (
+              <div style={{ marginTop: 28, background: 'linear-gradient(135deg, #fff7ed, #fef3c7)', border: '2px solid #fed7aa', borderRadius: 16, padding: '20px 22px' }}>
+                <div style={{ fontWeight: 800, fontSize: 19, color: '#9a3412', marginBottom: 4 }}>
+                  🏆 Your group picked it — now make it official!
+                </div>
+                <div style={{ color: '#c2410c', fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  {featuredOption.name}{featuredOption.date ? ` · ${featuredOption.date}` : ''}{featuredOption.time ? ` · ${featuredOption.time}` : ''}
+                </div>
+                {featuredOption.note && <div style={{ color: '#9a3412', fontSize: 14, marginBottom: 14 }}>📍 {featuredOption.note}</div>}
+                {!featuredOption.note && <div style={{ marginBottom: 14 }} />}
+                <div style={{ fontSize: 15, color: '#7c2d12', marginBottom: 14 }}>
+                  Add the game to your calendar and share it with your crew:
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => downloadICS(featuredOption, poll?.title, pollUrl)}
+                    style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: ac, color: acText, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                    📅 Download .ics
+                  </button>
+                  {googleCalendarUrl(featuredOption, poll?.title, pollUrl) && (
+                    <a href={googleCalendarUrl(featuredOption, poll?.title, pollUrl)} target="_blank" rel="noopener noreferrer"
+                      style={{ padding: '11px 20px', borderRadius: 10, border: '2px solid #ea580c', background: 'white', color: '#ea580c', fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-block' }}>
+                      📅 Google Calendar
+                    </a>
+                  )}
+                </div>
+                <div style={{ marginTop: 12, fontSize: 13, color: '#9a3412', opacity: 0.7 }}>
+                  Works with Apple Calendar, Google Calendar, Outlook, and more.
+                </div>
+              </div>
+            )
+          })()
         )}
 
         {/* Individual votes */}

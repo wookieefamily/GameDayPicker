@@ -77,6 +77,7 @@ export default function PollVote() {
   const [error,      setError]      = useState(null)
   const [doneSnap,   setDoneSnap]   = useState(null)
   const [copied,     setCopied]     = useState(false)
+  const [cantGo,     setCantGo]     = useState(new Set())
 
   const pollUrl = `${window.location.origin}/poll/${slug}`
   const copyLink = async () => {
@@ -129,10 +130,20 @@ export default function PollVote() {
 
   const options   = poll?.options ?? []
   const rankedIds = new Set(ranking)
-  const available = options.filter(o => !rankedIds.has(o.id))
+  const available = options.filter(o => !rankedIds.has(o.id) && !cantGo.has(o.id))
 
   const addOption    = id => setRanking(r => [...r, id])
   const removeOption = id => setRanking(r => r.filter(x => x !== id))
+
+  const toggleCantGo = id => {
+    setCantGo(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+    // Also remove from ranking if it was ranked
+    setRanking(r => r.filter(x => x !== id))
+  }
 
   const handleDragStart = i => e => { dragItem.current = i; e.dataTransfer.effectAllowed = 'move' }
   const handleDragOver  = i => e => { e.preventDefault(); dragOver.current = i }
@@ -153,7 +164,7 @@ export default function PollVote() {
     setError(null)
     try {
       const fresh = await fetchVotes(slug, group)
-      const vote  = { name: voterName.trim(), ranking, timestamp: Date.now() }
+      const vote  = { name: voterName.trim(), ranking, cantGo: [...cantGo], timestamp: Date.now() }
       const idx   = fresh.findIndex(v => v.name.toLowerCase() === vote.name.toLowerCase())
       const updated = idx >= 0 ? fresh.map((v, i) => i === idx ? vote : v) : [...fresh, vote]
       await pushVotes(slug, group, updated)
@@ -291,8 +302,36 @@ export default function PollVote() {
               <div>
                 <div style={{ color: '#2c4a6e', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>All Options — tap to add</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 560, overflowY: 'auto' }}>
-                  {available.map(o => <GamePill key={o.id} option={o} onClick={() => addOption(o.id)} />)}
+                  {available.map(o => (
+                    <div key={o.id} style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
+                      <div style={{ flex: 1 }}>
+                        <GamePill option={o} onClick={() => addOption(o.id)} />
+                      </div>
+                      <button
+                        onClick={() => toggleCantGo(o.id)}
+                        title="Can't make this one"
+                        style={{ padding: '0 12px', borderRadius: 10, border: '1.5px solid #fca5a5', background: '#fef2f2', color: '#dc2626', cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>
+                        🚫
+                      </button>
+                    </div>
+                  ))}
                   {!available.length && <div style={{ color: '#5a7a9a', fontSize: 16, textAlign: 'center', padding: 28, background: 'white', borderRadius: 10, border: '1px solid #e5e7eb' }}>All options ranked ✓</div>}
+                  {cantGo.size > 0 && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f3f4f6' }}>
+                      <div style={{ fontSize: 11, color: '#dc2626', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Can't Make These</div>
+                      {[...cantGo].map(id => {
+                        const o = options.find(x => x.id === id)
+                        return (
+                          <div key={id} style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6, opacity: 0.6 }}>
+                            <div style={{ flex: 1, fontSize: 13, color: '#dc2626', fontWeight: 600, padding: '6px 10px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fca5a5' }}>
+                              🚫 {o?.name}
+                            </div>
+                            <button onClick={() => toggleCantGo(id)} style={{ padding: '4px 8px', borderRadius: 8, border: '1px solid #d1d5db', background: 'white', color: '#5a7a9a', fontSize: 11, cursor: 'pointer' }}>undo</button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
@@ -375,23 +414,25 @@ export default function PollVote() {
             {!loading && votes.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {sorted.map((o, i) => {
-                  const sc    = scores[o.id]
-                  const pct   = (sc / maxScore) * 100
-                  const medal = ['🥇','🥈','🥉'][i] ?? null
+                  const sc       = scores[o.id]
+                  const pct      = (sc / maxScore) * 100
+                  const medal    = ['🥇','🥈','🥉'][i] ?? null
+                  const isWinner = poll?.winner === o.id
                   return (
-                    <div key={o.id} style={{ background: 'white', border: i < 3 ? `1.5px solid ${acRgba(0.35)}` : '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: i === 0 ? '0 2px 8px rgba(253,90,30,0.12)' : '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <div key={o.id} style={{ background: isWinner ? '#f0fdf4' : 'white', border: isWinner ? '2px solid #16a34a' : i < 3 ? `1.5px solid ${acRgba(0.35)}` : '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: isWinner ? '0 2px 8px rgba(22,163,74,0.15)' : i === 0 ? '0 2px 8px rgba(253,90,30,0.12)' : '0 1px 3px rgba(0,0,0,0.04)' }}>
                       <span style={{ fontSize: 22, width: 30, textAlign: 'center', flexShrink: 0 }}>
-                        {medal ?? <span style={{ color: '#8aa3be', fontSize: 16, fontWeight: 700 }}>#{i+1}</span>}
+                        {isWinner ? '👑' : (medal ?? <span style={{ color: '#8aa3be', fontSize: 16, fontWeight: 700 }}>#{i+1}</span>)}
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                           {o.month && <MonthTag month={o.month} />}
                           {o.date && <span style={{ color: '#3a5a80', fontSize: 12, fontWeight: 600 }}>{o.date}</span>}
                           {o.time && <span style={{ color: '#5a7a9a', fontSize: 12 }}>{o.time}</span>}
+                          {isWinner && <span style={{ background: '#16a34a', color: 'white', fontSize: 10, fontWeight: 800, padding: '1px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 0.5 }}>Organizer's Pick</span>}
                         </div>
                         <div style={{ fontWeight: 700, fontSize: 17, color: '#1a3a5c' }}>{o.name}</div>
                         <div style={{ marginTop: 6, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
+                          <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: isWinner ? '#16a34a' : i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
                         </div>
                         {(() => {
                           const who = votes.filter(v => v.ranking.includes(o.id))
@@ -402,9 +443,17 @@ export default function PollVote() {
                             </div>
                           ) : null
                         })()}
+                        {(() => {
+                          const cantGoNames = votes.filter(v => v.cantGo?.includes(o.id)).map(v => v.name)
+                          return cantGoNames.length > 0 ? (
+                            <div style={{ marginTop: 4, fontSize: 11, color: '#dc2626', fontWeight: 600 }}>
+                              🚫 Can't go: {cantGoNames.join(', ')}
+                            </div>
+                          ) : null
+                        })()}
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ color: i < 3 ? ac : '#2c4a6e', fontWeight: 800, fontSize: 22 }}>{sc}</div>
+                        <div style={{ color: isWinner ? '#16a34a' : i < 3 ? ac : '#2c4a6e', fontWeight: 800, fontSize: 22 }}>{sc}</div>
                         <div style={{ color: '#8aa3be', fontSize: 11 }}>{counts[o.id] || 0} vote{counts[o.id] !== 1 ? 's' : ''}</div>
                       </div>
                     </div>
@@ -416,8 +465,11 @@ export default function PollVote() {
         )}
 
         {/* Make it Official */}
-        {view === 'results' && !loading && votes.length > 0 && sorted[0]?.isoDate && (
-          <WinnerCard winner={sorted[0]} pollTitle={poll?.title} pollUrl={pollUrl} ac={ac} acText={acText} />
+        {view === 'results' && !loading && votes.length > 0 && (() => { const fw = poll?.winner ? options.find(o => o.id === poll.winner) : sorted[0]; return fw?.isoDate })() && (
+          (() => {
+            const featuredWinner = (poll?.winner ? options.find(o => o.id === poll?.winner) : sorted[0]) ?? sorted[0]
+            return <WinnerCard winner={featuredWinner} pollTitle={poll?.title} pollUrl={pollUrl} ac={ac} acText={acText} />
+          })()
         )}
 
         {/* Tip jar */}

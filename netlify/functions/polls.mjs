@@ -101,6 +101,20 @@ export default async (req) => {
       return new Response(JSON.stringify({ slug }), { status: 201, headers });
     }
 
+    // PATCH /api/polls?slug=foo  — update fields (e.g. winner)
+    if (req.method === "PATCH") {
+      const rawSlug = url.searchParams.get("slug") ?? "";
+      const slug = rawSlug.replace(/[^a-z0-9_-]/g, "");
+      if (!slug) return new Response(JSON.stringify({ error: "slug required" }), { status: 400, headers });
+      const raw = await store.get(slug);
+      if (!raw) return new Response(JSON.stringify({ error: "Poll not found" }), { status: 404, headers });
+      let body;
+      try { body = await req.json(); } catch { return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers }); }
+      const updated = { ...JSON.parse(raw), ...body };
+      await store.set(slug, JSON.stringify(updated));
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    }
+
     return new Response("Method not allowed", { status: 405, headers });
 
   } catch (err) {

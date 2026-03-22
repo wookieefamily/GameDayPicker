@@ -25,6 +25,16 @@ export async function fetchPoll(slug) {
   return res.json()
 }
 
+export async function updatePoll(slug, updates) {
+  const res = await fetch(`/api/polls?slug=${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  })
+  if (!res.ok) throw new Error(`Failed to update poll: ${res.status}`)
+  return res.json()
+}
+
 export async function createPoll(config) {
   const res = await fetch('/api/polls', {
     method: 'POST',
