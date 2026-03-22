@@ -84,9 +84,10 @@ export default function PollAdmin() {
       {/* Header */}
       <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {brand?.logo && (
-            <img src={brand.logo} alt={brand.shortName} style={{ height: 44, width: 44, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
-          )}
+          {brand?.logo
+            ? <img src={brand.logo} alt={brand.shortName} style={{ height: 48, width: 48, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
+            : <img src="/logo.png" alt="Game Day Picker" style={{ height: 52, width: 52, objectFit: 'contain', flexShrink: 0 }} />
+          }
           <div>
             <div style={{ color: ac, fontWeight: 800, fontSize: 20 }}>⚙ Admin — {poll?.title ?? slug}</div>
             <div style={{ color: '#5a7a9a', fontSize: 15, marginTop: 2 }}>

@@ -159,9 +159,10 @@ export default function PollVote() {
       {/* Header */}
       <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-          {brand?.logo && (
-            <img src={brand.logo} alt={brand.shortName} style={{ height: 44, width: 44, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
-          )}
+          {brand?.logo
+            ? <img src={brand.logo} alt={brand.shortName} style={{ height: 48, width: 48, objectFit: 'contain', flexShrink: 0, borderRadius: 8 }} />
+            : <img src="/logo.png" alt="Game Day Picker" style={{ height: 52, width: 52, objectFit: 'contain', flexShrink: 0 }} />
+          }
           <div style={{ minWidth: 0 }}>
             <div style={{ color: ac, fontWeight: 800, fontSize: 20, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{poll?.title}</div>
             <div style={{ color: '#5a7a9a', fontSize: 15, marginTop: 2 }}>
@@ -211,10 +212,12 @@ export default function PollVote() {
         {/* NAME step */}
         {view === 'vote' && step === 'name' && (
           <div style={{ maxWidth: 420, margin: '40px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 56, marginBottom: 14 }}>
+            <div style={{ marginBottom: 14 }}>
               {brand?.logo
-                ? <img src={brand.logo} alt="" style={{ height: 72, objectFit: 'contain', borderRadius: 10 }} />
-                : sportIcon(poll?.league)
+                ? <img src={brand.logo} alt="" style={{ height: 80, objectFit: 'contain', borderRadius: 10 }} />
+                : poll?.league
+                  ? <div style={{ fontSize: 56 }}>{sportIcon(poll.league)}</div>
+                  : <img src="/logo.png" alt="Game Day Picker" style={{ height: 90, objectFit: 'contain' }} />
               }
             </div>
             <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Who's voting?</h2>

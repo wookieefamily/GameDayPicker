@@ -68,10 +68,13 @@ export default function Home() {
 
       {/* Header */}
       <div style={{ background: headerBg, borderBottom: `3px solid ${ac}`, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        {brand?.logo && <img src={brand.logo} alt={brand.name} style={{ height: 44, width: 44, objectFit: 'contain', borderRadius: 8 }} />}
+        {brand?.logo
+          ? <img src={brand.logo} alt={brand.name} style={{ height: 48, width: 48, objectFit: 'contain', borderRadius: 8 }} />
+          : <img src="/logo.png" alt="Game Day Picker" style={{ height: 52, width: 52, objectFit: 'contain' }} />
+        }
         <div>
           <div style={{ color: ac, fontWeight: 800, fontSize: 24 }}>
-            {brand ? brand.name : '🏆 Game Day Picker'}
+            {brand ? brand.name : 'Game Day Picker'}
           </div>
           <div style={{ color: '#5a7a9a', fontSize: 15, marginTop: 2 }}>
             {brand ? 'Create a poll · Share with your fans' : 'Create a ranked-choice voting poll · Share the link'}
@@ -83,7 +86,7 @@ export default function Home() {
 
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '36px 20px 32px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <div style={{ fontSize: 38, letterSpacing: 8, marginBottom: 16 }}>⚾ 🏈 🏀 🏒 ⚽</div>
+        <img src="/logo.png" alt="" style={{ height: 100, objectFit: 'contain', marginBottom: 12 }} />
         <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>
           Stop the group chat debate.
         </h2>
