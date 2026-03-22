@@ -7,6 +7,42 @@ import MonthTag from '../components/MonthTag.jsx'
 import { fetchPoll, fetchVotes, pushVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 import { getBrand } from '../lib/brands.js'
+import { downloadICS, googleCalendarUrl } from '../lib/calendar.js'
+
+function WinnerCard({ winner, pollTitle, pollUrl, ac, acText }) {
+  const gcUrl = googleCalendarUrl(winner, pollTitle, pollUrl)
+  return (
+    <div style={{ marginTop: 28, background: 'linear-gradient(135deg, #fff7ed, #fef3c7)', border: '2px solid #fed7aa', borderRadius: 16, padding: '20px 22px' }}>
+      <div style={{ fontWeight: 800, fontSize: 19, color: '#9a3412', marginBottom: 4 }}>
+        🏆 Your group picked it — now make it official!
+      </div>
+      <div style={{ color: '#c2410c', fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+        {winner.name}{winner.date ? ` · ${winner.date}` : ''}{winner.time ? ` · ${winner.time}` : ''}
+      </div>
+      {winner.note && <div style={{ color: '#9a3412', fontSize: 14, marginBottom: 14 }}>📍 {winner.note}</div>}
+      {!winner.note && <div style={{ marginBottom: 14 }} />}
+      <div style={{ fontSize: 15, color: '#7c2d12', marginBottom: 14 }}>
+        Add the game to your calendar and share it with your crew:
+      </div>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <button
+          onClick={() => downloadICS(winner, pollTitle, pollUrl)}
+          style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: ac, color: acText, fontWeight: 700, fontSize: 15, cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+          📅 Download .ics
+        </button>
+        {gcUrl && (
+          <a href={gcUrl} target="_blank" rel="noopener noreferrer"
+            style={{ padding: '11px 20px', borderRadius: 10, border: '2px solid #ea580c', background: 'white', color: '#ea580c', fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-block' }}>
+            📅 Google Calendar
+          </a>
+        )}
+      </div>
+      <div style={{ marginTop: 12, fontSize: 13, color: '#9a3412', opacity: 0.7 }}>
+        Works with Apple Calendar, Google Calendar, Outlook, and more.
+      </div>
+    </div>
+  )
+}
 
 const SPORT_ICONS = {
   mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒', mls: '⚽',
@@ -368,6 +404,11 @@ export default function PollVote() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Make it Official */}
+        {view === 'results' && !loading && votes.length > 0 && sorted[0]?.isoDate && (
+          <WinnerCard winner={sorted[0]} pollTitle={poll?.title} pollUrl={pollUrl} ac={ac} acText={acText} />
         )}
 
         {/* Tip jar */}

@@ -42,12 +42,13 @@ export default function Home() {
       const validOptions = options
         .filter(o => o.name.trim())
         .map((o, i) => ({
-          id: slugify(o.name) + '-' + i,
-          name: o.name.trim(),
-          date:  o._displayDate || (o.date ? formatDate(o.date) : ''),
-          month: o._month       || (o.date ? monthFromIso(o.date) : ''),
-          time:  o.time.trim(),
-          note:  o.note.trim() || null,
+          id:      slugify(o.name) + '-' + i,
+          name:    o.name.trim(),
+          isoDate: o.date || '',          // YYYY-MM-DD — for calendar invites
+          date:    o._displayDate || (o.date ? formatDate(o.date) : ''),
+          month:   o._month       || (o.date ? monthFromIso(o.date) : ''),
+          time:    o.time.trim(),
+          note:    o.note.trim() || null,
         }))
       const { slug } = await createPoll({
         title: title.trim(),
@@ -88,10 +89,10 @@ export default function Home() {
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '36px 20px 32px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <img src="/logo.png" alt="Game Day Picker" style={{ height: 180, objectFit: 'contain', marginBottom: 8 }} />
         <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>
-          Stop the group chat debate.
+          Less group chat. More game day.
         </h2>
-        <p style={{ color: '#3a5a80', fontSize: 18, maxWidth: 480, margin: '0 auto 28px', lineHeight: 1.6 }}>
-          Share a link, everyone ranks their picks, the best date wins.
+        <p style={{ color: '#3a5a80', fontSize: 18, maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.6 }}>
+          Share a link, everyone votes on their favorite dates, and the winner is picked for you — no debates required.
         </p>
         <div className="how-cards">
           {[
