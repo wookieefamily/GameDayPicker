@@ -171,6 +171,15 @@ export default function PollAdmin() {
                     <div style={{ marginTop: 6, height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: pct + '%', borderRadius: 3, background: i === 0 ? ac : i < 3 ? acRgba(0.6) : '#d1d5db', transition: 'width .6s ease' }} />
                     </div>
+                    {(() => {
+                      const who = votes.filter(v => v.ranking.includes(o.id))
+                        .map(v => `${v.name} #${v.ranking.indexOf(o.id) + 1}`)
+                      return who.length > 0 ? (
+                        <div style={{ marginTop: 5, fontSize: 11, color: '#8aa3be', lineHeight: 1.5 }}>
+                          {who.join(' · ')}
+                        </div>
+                      ) : null
+                    })()}
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ color: i < 3 ? ac : '#2c4a6e', fontWeight: 800, fontSize: 22 }}>{sc}</div>
