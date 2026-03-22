@@ -150,7 +150,11 @@ export default function PollVote() {
     setRanking(r => r.filter(x => x !== id))
   }
 
-  const handleDragStart = i => e => { dragItem.current = i; e.dataTransfer.effectAllowed = 'move' }
+  const handleDragStart = i => e => {
+    dragItem.current = i
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(i)) // required for Chrome
+  }
   const handleDragOver  = i => e => { e.preventDefault(); dragOver.current = i }
   const handleDrop      = i => e => {
     e.preventDefault()
@@ -161,6 +165,15 @@ export default function PollVote() {
       return n
     })
     dragItem.current = dragOver.current = null
+  }
+
+  const moveRanking = (i, dir) => {
+    setRanking(r => {
+      const n = [...r], j = i + dir
+      if (j < 0 || j >= n.length) return r
+      ;[n[i], n[j]] = [n[j], n[i]]
+      return n
+    })
   }
 
   const handleSubmit = async () => {
@@ -368,7 +381,7 @@ export default function PollVote() {
                 </div>
               </div>
               <div>
-                <div style={{ color: '#16a34a', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Your Ranking — drag to reorder · tap to remove</div>
+                <div style={{ color: '#16a34a', fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Your Ranking — use ↑↓ to reorder · tap to remove</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minHeight: 60, maxHeight: 560, overflowY: 'auto' }}>
                   {!ranking.length && (
                     <div style={{ border: '2px dashed #d1d5db', borderRadius: 10, padding: 28, color: '#8aa3be', fontSize: 16, textAlign: 'center', background: 'white' }}>
@@ -378,11 +391,25 @@ export default function PollVote() {
                   {ranking.map((id, i) => {
                     const o = options.find(x => x.id === id)
                     return (
-                      <GamePill key={id} option={o} rank={i + 1} draggable
-                        onDragStart={handleDragStart(i)} onDragOver={handleDragOver(i)}
-                        onDrop={handleDrop(i)} onDragEnd={() => { dragItem.current = null }}
-                        onClick={() => removeOption(id)}
-                      />
+                      <div key={id} style={{ display: 'flex', gap: 4, alignItems: 'stretch' }}>
+                        <div style={{ flex: 1 }}>
+                          <GamePill option={o} rank={i + 1} draggable
+                            onDragStart={handleDragStart(i)} onDragOver={handleDragOver(i)}
+                            onDrop={handleDrop(i)} onDragEnd={() => { dragItem.current = null }}
+                            onClick={() => removeOption(id)}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          <button onClick={() => moveRanking(i, -1)} disabled={i === 0}
+                            style={{ flex: 1, padding: '0 10px', borderRadius: 8, border: '1.5px solid #d1d5db', background: i === 0 ? '#f9fafb' : 'white', color: i === 0 ? '#d1d5db' : '#2c4a6e', cursor: i === 0 ? 'default' : 'pointer', fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
+                            ↑
+                          </button>
+                          <button onClick={() => moveRanking(i, 1)} disabled={i === ranking.length - 1}
+                            style={{ flex: 1, padding: '0 10px', borderRadius: 8, border: '1.5px solid #d1d5db', background: i === ranking.length - 1 ? '#f9fafb' : 'white', color: i === ranking.length - 1 ? '#d1d5db' : '#2c4a6e', cursor: i === ranking.length - 1 ? 'default' : 'pointer', fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
+                            ↓
+                          </button>
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
