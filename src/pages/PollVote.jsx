@@ -245,38 +245,41 @@ export default function PollVote() {
 
       {/* Share banner */}
       {justCreated && (
-        <div style={{ background: '#fffbeb', borderBottom: '1px solid #fde68a', padding: '16px 16px' }}>
+        <div style={{ background: '#fffbeb', borderBottom: '1px solid #fde68a', padding: '20px 16px' }}>
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
             {/* Voter share link */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: adminUrl ? 14 : 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ color: '#92400e', fontWeight: 800, fontSize: 17, marginBottom: 4 }}>🎉 Poll created! Share this link with your group:</div>
                 <code style={{ color: '#b45309', fontSize: 14, wordBreak: 'break-all' }}>{pollUrl}</code>
               </div>
               <button onClick={copyLink}
                 style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: copied ? '#16a34a' : ac, color: 'white', fontWeight: 800, fontSize: 15, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {copied ? '✓ Copied!' : '📋 Copy Link'}
+                {copied ? '✓ Copied!' : '🔗 Share Link'}
               </button>
             </div>
+
             {/* Admin link — save this! */}
             {adminUrl && (
-              <div style={{ background: 'white', border: '1.5px solid #fbbf24', borderRadius: 10, padding: '12px 14px' }}>
-                <div style={{ color: '#92400e', fontWeight: 800, fontSize: 14, marginBottom: 6 }}>
-                  🔐 Your organizer link — bookmark this, only you get it:
-                </div>
-                <code style={{ display: 'block', color: '#78350f', fontSize: 12, wordBreak: 'break-all', background: '#fffbeb', padding: '6px 10px', borderRadius: 6, marginBottom: 8 }}>
-                  {window.location.origin}{adminUrl}
-                </code>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}${adminUrl}`).catch(()=>{})}
-                    style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#fbbf24', color: '#78350f', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    📋 Copy Organizer Link
-                  </button>
-                  <Link to={adminUrl}
-                    style={{ padding: '7px 14px', borderRadius: 8, background: '#92400e', color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
-                    Go to Admin →
-                  </Link>
+              <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #fde68a' }}>
+                <div style={{ background: 'white', border: '2px solid #f59e0b', borderRadius: 12, padding: '16px 18px', boxShadow: '0 2px 8px rgba(245,158,11,0.15)' }}>
+                  <div style={{ color: '#92400e', fontWeight: 800, fontSize: 15, marginBottom: 8, lineHeight: 1.5 }}>
+                    🔐 Your organizer link — bookmark this, for your eyes only! This is where you'll be able to review detailed results, confirm/change the "winner", reset the poll and refresh results:
+                  </div>
+                  <code style={{ display: 'block', color: '#78350f', fontSize: 12, wordBreak: 'break-all', background: '#fffbeb', padding: '8px 12px', borderRadius: 8, marginBottom: 12, lineHeight: 1.6 }}>
+                    {window.location.origin}{adminUrl}
+                  </code>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(`${window.location.origin}${adminUrl}`).catch(()=>{})}
+                      style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: '#f59e0b', color: '#78350f', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      📋 Copy Organizer Link
+                    </button>
+                    <Link to={adminUrl}
+                      style={{ padding: '9px 18px', borderRadius: 9, background: '#92400e', color: 'white', textDecoration: 'none', fontWeight: 800, fontSize: 14, whiteSpace: 'nowrap', display: 'inline-block' }}>
+                      Go to Admin →
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}

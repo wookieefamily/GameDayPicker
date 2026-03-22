@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Spinner from './Spinner.jsx'
 import { fetchTeams, fetchGames } from '../lib/api.js'
 import { slugify, monthFromIso } from '../lib/slugify.js'
@@ -19,10 +19,8 @@ const LEAGUE_GROUPS = [
   {
     label: "Women's Leagues",
     leagues: [
-      { key: 'wnba',   label: 'WNBA 🏀' },
-      { key: 'nwsl',   label: 'NWSL ⚽' },
-      { key: 'pwhl',   label: 'PWHL 🏒' },
-      { key: 'wcbb',   label: "Women's College Basketball 🏀" },
+      { key: 'wnba', label: 'WNBA 🏀' },
+      { key: 'wcbb', label: "Women's College Basketball 🏀" },
     ],
   },
 ]
@@ -56,7 +54,7 @@ function gameToOption(g, idx) {
 }
 
 export default function ScheduleImporter({ onImport }) {
-  const [open,        setOpen]        = useState(false)
+  const [open,        setOpen]        = useState(true)
   const [league,      setLeague]      = useState('mlb')
   const [teams,       setTeams]       = useState([])
   const [teamQuery,   setTeamQuery]   = useState('')
@@ -74,13 +72,25 @@ export default function ScheduleImporter({ onImport }) {
   const [loadingGames,setLoadingGames]= useState(false)
   const [error,       setError]       = useState(null)
 
+  // Cross-league freeform search
+  const [globalQuery, setGlobalQuery] = useState('')
+  const [allTeams,    setAllTeams]    = useState(null) // null = not yet loaded
+  const [loadingAll,  setLoadingAll]  = useState(false)
+
+  // Ref to skip resetting selected team when league changes via global search
+  const skipTeamReset = useRef(false)
+
   useEffect(() => {
     if (!open) return
-    setTeams([])
-    setSelectedTeam(null)
-    setGames([])
-    setTeamQuery('')
-    setError(null)
+    const preserveSelection = skipTeamReset.current
+    skipTeamReset.current = false
+    if (!preserveSelection) {
+      setTeams([])
+      setSelectedTeam(null)
+      setGames([])
+      setTeamQuery('')
+      setError(null)
+    }
     setLoadingTeams(true)
     fetchTeams(league)
       .then(t => setTeams(t))
@@ -88,12 +98,43 @@ export default function ScheduleImporter({ onImport }) {
       .finally(() => setLoadingTeams(false))
   }, [league, open])
 
+  // Lazy-load all teams when user starts typing in global search
+  useEffect(() => {
+    if (!globalQuery.trim() || allTeams !== null || loadingAll) return
+    setLoadingAll(true)
+    Promise.all(
+      ALL_LEAGUES.map(l =>
+        fetchTeams(l.key)
+          .then(ts => ts.map(t => ({ ...t, leagueKey: l.key, leagueLabel: l.label })))
+          .catch(() => [])
+      )
+    )
+      .then(results => setAllTeams(results.flat()))
+      .finally(() => setLoadingAll(false))
+  }, [globalQuery, allTeams, loadingAll])
+
   const filteredTeams = useMemo(() =>
     teamQuery.trim()
       ? teams.filter(t => t.name.toLowerCase().includes(teamQuery.toLowerCase()))
       : teams,
     [teams, teamQuery]
   )
+
+  const globalResults = useMemo(() => {
+    if (!globalQuery.trim() || !allTeams) return []
+    return allTeams
+      .filter(t => t.name.toLowerCase().includes(globalQuery.toLowerCase()))
+      .slice(0, 25)
+  }, [globalQuery, allTeams])
+
+  const selectGlobalTeam = (t) => {
+    skipTeamReset.current = true
+    setLeague(t.leagueKey)
+    setSelectedTeam(t)
+    setTeamQuery(t.name)
+    setGlobalQuery('')
+    setGames([])
+  }
 
   const loadGames = async () => {
     if (!selectedTeam) return
@@ -152,6 +193,39 @@ export default function ScheduleImporter({ onImport }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
         <span style={{ color: '#1d4ed8', fontWeight: 700, fontSize: 17 }}>📅 Import from Team Schedule</span>
         <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#8aa3be', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>✕</button>
+      </div>
+
+      {/* Freeform cross-league search */}
+      <div style={{ marginBottom: 20, padding: '14px 16px', background: '#f8faff', border: '1.5px solid #bfdbfe', borderRadius: 12 }}>
+        <label style={{ ...labelStyle, color: '#1d4ed8', marginBottom: 6 }}>🔍 Search Across All Sports</label>
+        <div style={{ position: 'relative' }}>
+          <input
+            value={globalQuery}
+            onChange={e => { setGlobalQuery(e.target.value); setSelectedTeam(null); setGames([]) }}
+            placeholder="e.g. UCLA, Chicago, Real Salt Lake…"
+            style={inputStyle}
+          />
+        </div>
+        {globalQuery && (
+          <div style={{ maxHeight: 220, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 10, marginTop: 4, background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            {loadingAll
+              ? <div style={{ padding: '12px 16px', color: '#5a7a9a', fontSize: 15 }}><Spinner />Searching all sports…</div>
+              : globalResults.length === 0
+                ? <div style={{ padding: '12px 16px', color: '#5a7a9a', fontSize: 15 }}>No teams found</div>
+                : globalResults.map(t => (
+                  <div key={`${t.leagueKey}-${t.id}`} onClick={() => selectGlobalTeam(t)}
+                    style={{ padding: '10px 16px', cursor: 'pointer', color: '#1a3a5c', fontSize: 15, borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f0f9ff'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span style={{ fontWeight: 600 }}>{t.name}</span>
+                    <span style={{ color: '#6b7280', fontSize: 11, background: '#f3f4f6', padding: '2px 8px', borderRadius: 10, whiteSpace: 'nowrap', marginLeft: 8 }}>{t.leagueLabel}</span>
+                  </div>
+                ))
+            }
+          </div>
+        )}
+        <div style={{ color: '#6b7eaf', fontSize: 12, marginTop: 6 }}>Search by team name — or browse by league below</div>
       </div>
 
       {/* Step 1: League */}

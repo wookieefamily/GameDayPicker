@@ -89,7 +89,7 @@ export default function Home() {
 
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '36px 20px 32px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <img src="/logo.png" alt="Game Day Picker" style={{ height: 180, objectFit: 'contain', marginBottom: 8 }} />
+        <img src="/logo.png" alt="Game Day Picker" style={{ width: 'min(320px, 80vw)', height: 'min(320px, 80vw)', objectFit: 'contain', marginBottom: 8 }} />
         <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>
           Less group chat. More game day.
         </h2>
@@ -135,10 +135,7 @@ export default function Home() {
 
         {/* Easy option */}
         <div style={{ marginTop: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-            <span style={{ background: '#16a34a', color: 'white', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 1 }}>Easy Option</span>
-            <span style={{ color: '#1a3a5c', fontWeight: 700, fontSize: 17 }}>Import Your Favorite Team's Schedule</span>
-          </div>
+          <h3 style={{ color: '#16a34a', fontWeight: 800, fontSize: 19, marginBottom: 6, marginTop: 0 }}>📅 Easy Option — Import Your Favorite Team's Schedule</h3>
           <p style={{ color: '#5a7a9a', fontSize: 16, marginBottom: 12, lineHeight: 1.5 }}>
             Search any MLB, NFL, NBA, NHL, or college team — filter by day, time, and home/away — then import in one click.
           </p>
@@ -156,11 +153,8 @@ export default function Home() {
         </div>
 
         {/* Manual option */}
-        <div style={{ marginTop: 32, marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-            <span style={{ background: '#2563eb', color: 'white', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 1 }}>Manual Option</span>
-            <span style={{ color: '#1a3a5c', fontWeight: 700, fontSize: 17 }}>Enter Specific Games or Dates</span>
-          </div>
+        <div style={{ marginTop: 36, marginBottom: 14 }}>
+          <h3 style={{ color: '#2563eb', fontWeight: 800, fontSize: 19, marginBottom: 6, marginTop: 0 }}>✏️ Manual Option — Enter Specific Games or Dates</h3>
           <p style={{ color: '#5a7a9a', fontSize: 16, marginBottom: 14, lineHeight: 1.5 }}>
             Type in any options you like — not just sports. Date and time are optional.
           </p>
