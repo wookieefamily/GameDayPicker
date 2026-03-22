@@ -86,7 +86,7 @@ export default function Home() {
 
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '36px 20px 32px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <img src="/logo.png" alt="" style={{ height: 100, objectFit: 'contain', marginBottom: 12 }} />
+        <img src="/logo.png" alt="Game Day Picker" style={{ height: 180, objectFit: 'contain', marginBottom: 8 }} />
         <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>
           Stop the group chat debate.
         </h2>
@@ -116,7 +116,7 @@ export default function Home() {
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="e.g. McCoy Cove 2026"
+          placeholder="e.g. McCovey Cove 2026 Crew"
           style={inputStyle}
         />
 
