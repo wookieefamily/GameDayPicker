@@ -1,5 +1,6 @@
 // Netlify Functions v2 (ESM) — required for @netlify/blobs to work reliably
 import { getStore } from "@netlify/blobs";
+import { randomUUID } from "node:crypto";
 
 function slugify(text) {
   return text
@@ -71,7 +72,7 @@ export default async (req) => {
         );
       }
 
-      const adminToken = crypto.randomUUID();
+      const adminToken = randomUUID();
       let slug = slugify(title) || "poll";
 
       // Ensure uniqueness
