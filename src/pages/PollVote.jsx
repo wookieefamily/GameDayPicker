@@ -83,6 +83,28 @@ export default function PollVote() {
   const [doneSnap,   setDoneSnap]   = useState(null)
   const [copied,     setCopied]     = useState(false)
   const [cantGo,     setCantGo]     = useState(new Set())
+  const [timeLeft,   setTimeLeft]   = useState(null)  // null | { d,h,m,s,diff } | 'closed'
+
+  // Live countdown ticker
+  useEffect(() => {
+    if (!poll?.deadline) return
+    const tick = () => {
+      const diff = new Date(poll.deadline) - Date.now()
+      if (diff <= 0) { setTimeLeft('closed'); return }
+      setTimeLeft({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+        diff,
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [poll?.deadline])
+
+  const votingClosed = timeLeft === 'closed'
 
   const pollUrl = `${window.location.origin}/poll/${slug}`
   const copyLink = async () => {
@@ -301,6 +323,27 @@ export default function PollVote() {
         </div>
       )}
 
+      {/* Countdown banner */}
+      {timeLeft && (() => {
+        const closed = timeLeft === 'closed'
+        const urgent = !closed && timeLeft.diff < 3600000   // < 1 hour
+        const soon   = !closed && timeLeft.diff < 86400000  // < 24 hours
+        const bg     = closed ? '#fef2f2' : urgent ? '#fff7ed' : soon ? '#fffbeb' : '#f0fdf4'
+        const border = closed ? '#fca5a5' : urgent ? '#fed7aa' : soon ? '#fde68a' : '#86efac'
+        const color  = closed ? '#dc2626' : urgent ? '#c2410c' : soon ? '#92400e' : '#15803d'
+        const icon   = closed ? '🔒' : urgent ? '🚨' : soon ? '⏰' : '⏳'
+        const label  = closed
+          ? 'Voting is closed'
+          : `${timeLeft.d > 0 ? `${timeLeft.d}d ` : ''}${timeLeft.h}h ${timeLeft.m}m ${timeLeft.s}s remaining`
+        return (
+          <div style={{ background: bg, borderBottom: `1px solid ${border}`, padding: '10px 16px', textAlign: 'center' }}>
+            <span style={{ color, fontWeight: 700, fontSize: 15 }}>
+              {icon} {closed ? 'Voting is closed — results are final.' : `Voting closes in ${label}`}
+            </span>
+          </div>
+        )
+      })()}
+
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
 
         {/* NAME step */}
@@ -314,19 +357,24 @@ export default function PollVote() {
                   : <img src="/logo.png" alt="Game Day Picker" style={{ height: 90, objectFit: 'contain' }} />
               }
             </div>
-            <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Who's voting?</h2>
-            <p style={{ color: '#3a5a80', fontSize: 18, marginBottom: 28, lineHeight: 1.6 }}>Rank your favorites to help the group decide.</p>
-            <input
-              autoFocus value={voterName}
-              onChange={e => setVoterName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && voterName.trim() && setStep('rank')}
-              placeholder="Enter your name"
-              style={{ width: '100%', padding: '14px 16px', borderRadius: 12, border: '2px solid #d1d5db', background: 'white', color: '#1a3a5c', fontSize: 18, fontFamily: 'inherit', outline: 'none', marginBottom: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
-            />
-            <button onClick={() => voterName.trim() && setStep('rank')} disabled={!voterName.trim()}
-              style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: voterName.trim() ? ac : '#e5e7eb', color: voterName.trim() ? acText : '#8aa3be', fontSize: 18, fontWeight: 700, fontFamily: 'inherit', cursor: voterName.trim() ? 'pointer' : 'default', boxShadow: voterName.trim() ? '0 2px 8px rgba(253,90,30,0.25)' : 'none' }}>
-              Let's Go →
-            </button>
+            {votingClosed
+              ? <><div style={{ fontSize: 48, marginBottom: 12 }}>🔒</div>
+                  <h2 style={{ color: '#dc2626', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Voting is closed</h2>
+                  <p style={{ color: '#5a7a9a', fontSize: 17, lineHeight: 1.6 }}>The organizer has closed this poll. Check the results tab to see how the group voted.</p></>
+              : <><h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Who's voting?</h2>
+                  <p style={{ color: '#3a5a80', fontSize: 18, marginBottom: 28, lineHeight: 1.6 }}>Rank your favorites to help the group decide.</p>
+                  <input
+                    autoFocus value={voterName}
+                    onChange={e => setVoterName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && voterName.trim() && setStep('rank')}
+                    placeholder="Enter your name"
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: 12, border: '2px solid #d1d5db', background: 'white', color: '#1a3a5c', fontSize: 18, fontFamily: 'inherit', outline: 'none', marginBottom: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                  />
+                  <button onClick={() => voterName.trim() && setStep('rank')} disabled={!voterName.trim()}
+                    style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: voterName.trim() ? ac : '#e5e7eb', color: voterName.trim() ? acText : '#8aa3be', fontSize: 18, fontWeight: 700, fontFamily: 'inherit', cursor: voterName.trim() ? 'pointer' : 'default', boxShadow: voterName.trim() ? '0 2px 8px rgba(253,90,30,0.25)' : 'none' }}>
+                    Let's Go →
+                  </button></>
+            }
             {loading
               ? <p style={{ color: '#8aa3be', fontSize: 15, marginTop: 18 }}><Spinner />Loading votes…</p>
               : votes.length > 0 && (
@@ -415,10 +463,12 @@ export default function PollVote() {
                   })}
                 </div>
                 {ranking.length > 0 && (
-                  <button onClick={handleSubmit} disabled={saving}
-                    style={{ marginTop: 14, width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: saving ? '#e5e7eb' : ac, color: saving ? '#8aa3be' : acText, fontSize: 18, fontWeight: 700, fontFamily: 'inherit', cursor: saving ? 'default' : 'pointer', boxShadow: saving ? 'none' : '0 2px 8px rgba(253,90,30,0.25)' }}>
-                    {saving ? <><Spinner />Saving…</> : `Submit My ${ranking.length} Pick${ranking.length !== 1 ? 's' : ''} →`}
-                  </button>
+                  votingClosed
+                    ? <div style={{ marginTop: 14, padding: '14px', borderRadius: 12, background: '#fef2f2', border: '1.5px solid #fca5a5', color: '#dc2626', fontWeight: 700, fontSize: 16, textAlign: 'center' }}>🔒 Voting is closed — submissions no longer accepted</div>
+                    : <button onClick={handleSubmit} disabled={saving}
+                        style={{ marginTop: 14, width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: saving ? '#e5e7eb' : ac, color: saving ? '#8aa3be' : acText, fontSize: 18, fontWeight: 700, fontFamily: 'inherit', cursor: saving ? 'default' : 'pointer', boxShadow: saving ? 'none' : '0 2px 8px rgba(253,90,30,0.25)' }}>
+                        {saving ? <><Spinner />Saving…</> : `Submit My ${ranking.length} Pick${ranking.length !== 1 ? 's' : ''} →`}
+                      </button>
                 )}
               </div>
             </div>

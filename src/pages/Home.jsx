@@ -21,6 +21,7 @@ export default function Home() {
 
   const [title, setTitle]       = useState('')
   const [desc, setDesc]         = useState('')
+  const [deadline, setDeadline] = useState('')
   const [options, setOptions]   = useState([EMPTY_OPTION(), EMPTY_OPTION()])
   const [league, setLeague]     = useState(null)
   const [saving, setSaving]     = useState(false)
@@ -55,6 +56,7 @@ export default function Home() {
         description: desc.trim(),
         options: validOptions,
         league: league ?? undefined,
+        deadline: deadline || null,
       })
       // Persist token so organizer can always get back to admin from this device
       if (adminToken) localStorage.setItem(`gdp:admin:${slug}`, adminToken)
@@ -131,6 +133,17 @@ export default function Home() {
           placeholder="e.g. SF Giants Day Game Planner · Oracle Park"
           rows={2}
           style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
+        />
+
+        {/* Voting Deadline */}
+        <label style={{ ...labelStyle, marginTop: 20 }}>
+          Voting Deadline <span style={{ color: '#8aa3be', fontWeight: 400, textTransform: 'none', fontSize: 13 }}>(optional — countdown shown to voters)</span>
+        </label>
+        <input
+          type="datetime-local"
+          value={deadline}
+          onChange={e => setDeadline(e.target.value)}
+          style={{ ...inputStyle, colorScheme: 'light', maxWidth: 280 }}
         />
 
         {/* Easy option */}

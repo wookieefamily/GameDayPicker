@@ -25,13 +25,15 @@ export default function PollAdmin() {
   const adminQ   = [brandQ.replace('?',''), tokenQ].filter(Boolean).join('&')
   const fullAdminQ = adminQ ? `?${adminQ}` : ''
 
-  const [poll,       setPoll]       = useState(null)
-  const [votes,      setVotes]      = useState([])
-  const [loading,    setLoading]    = useState(true)
-  const [resetting,  setResetting]  = useState(false)
-  const [error,      setError]      = useState(null)
-  const [copied,     setCopied]     = useState(false)
+  const [poll,         setPoll]         = useState(null)
+  const [votes,        setVotes]        = useState([])
+  const [loading,      setLoading]      = useState(true)
+  const [resetting,    setResetting]    = useState(false)
+  const [error,        setError]        = useState(null)
+  const [copied,       setCopied]       = useState(false)
   const [settingWinner, setSettingWinner] = useState(false)
+  const [deadlineEdit, setDeadlineEdit] = useState('')
+  const [savingDeadline, setSavingDeadline] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -41,6 +43,7 @@ export default function PollAdmin() {
       if (!p) { setError('Poll not found.'); return }
       setPoll(p)
       setVotes(v)
+      setDeadlineEdit(p.deadline ? p.deadline.slice(0,16) : '')
       document.title = `Admin: ${p.title} — Game Day Picker`
     } catch (e) {
       setError(e.message)
@@ -74,6 +77,18 @@ export default function PollAdmin() {
       setError("Couldn't set winner. " + e.message)
     } finally {
       setSettingWinner(false)
+    }
+  }
+
+  const handleSaveDeadline = async () => {
+    setSavingDeadline(true)
+    try {
+      await updatePoll(slug, { deadline: deadlineEdit || null }, token)
+      setPoll(p => ({ ...p, deadline: deadlineEdit || null }))
+    } catch (e) {
+      setError("Couldn't save deadline. " + e.message)
+    } finally {
+      setSavingDeadline(false)
     }
   }
 
@@ -162,6 +177,35 @@ export default function PollAdmin() {
           <div style={{ color: '#8aa3be', fontSize: 12, marginTop: 10, lineHeight: 1.6 }}>
             Add ?group=name to create separate vote pools for different groups.
             {brand && <span> Add ?brand={searchParams.get('brand')} to show team branding.</span>}
+          </div>
+        </div>
+
+        {/* Voting Deadline */}
+        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 14, padding: 20, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          <div style={{ color: '#2c4a6e', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>⏰ Voting Deadline</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              type="datetime-local"
+              value={deadlineEdit}
+              onChange={e => setDeadlineEdit(e.target.value)}
+              style={{ flex: '1 1 200px', padding: '10px 14px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#1a3a5c', fontSize: 15, fontFamily: 'inherit', colorScheme: 'light' }}
+            />
+            <button
+              onClick={handleSaveDeadline}
+              disabled={savingDeadline}
+              style={{ padding: '10px 18px', borderRadius: 8, border: 'none', background: ac, color: 'white', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              {savingDeadline ? 'Saving…' : 'Save Deadline'}
+            </button>
+            {deadlineEdit && (
+              <button onClick={() => setDeadlineEdit('')} style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid #fca5a5', background: 'white', color: '#dc2626', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                Clear
+              </button>
+            )}
+          </div>
+          <div style={{ color: '#8aa3be', fontSize: 12, marginTop: 10 }}>
+            {poll?.deadline
+              ? `Voting closes ${new Date(poll.deadline).toLocaleString()} · Countdown shown to voters in real time`
+              : 'No deadline set — voting stays open indefinitely'}
           </div>
         </div>
 
