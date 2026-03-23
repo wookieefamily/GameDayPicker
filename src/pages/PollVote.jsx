@@ -124,6 +124,7 @@ export default function PollVote() {
         if (!p) { setError('Poll not found.'); setLoading(false); return }
         setPoll(p)
         setVotes(v)
+        document.title = `${p.title} — Game Day Picker`
       } catch (e) {
         setError(e.message)
       } finally {
@@ -532,13 +533,9 @@ export default function PollVote() {
           })()
         )}
 
-        {/* Tip jar */}
+        {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: 56, paddingTop: 24, borderTop: '1px solid #e5e7eb' }}>
-          <p style={{ color: '#8aa3be', fontSize: 15, marginBottom: 12 }}>Game Day Picker is free — enjoy the game! 🏆</p>
-          <a href="https://paypal.me/betsydaly" target="_blank" rel="noopener noreferrer"
-            style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 24, background: 'white', border: '1.5px solid #e5e7eb', color: '#5a7a9a', fontSize: 16, fontFamily: 'inherit', textDecoration: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-            ☕ Send a tip
-          </a>
+          <p style={{ color: '#8aa3be', fontSize: 15 }}>Game Day Picker is free — enjoy the game! 🏆</p>
         </div>
 
       </div>

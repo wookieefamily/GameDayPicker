@@ -41,6 +41,7 @@ export default function PollAdmin() {
       if (!p) { setError('Poll not found.'); return }
       setPoll(p)
       setVotes(v)
+      document.title = `Admin: ${p.title} — Game Day Picker`
     } catch (e) {
       setError(e.message)
     } finally {
@@ -67,7 +68,7 @@ export default function PollAdmin() {
     setSettingWinner(true)
     try {
       const newWinner = poll.winner === optionId ? null : optionId  // toggle off if already set
-      await updatePoll(slug, { winner: newWinner })
+      await updatePoll(slug, { winner: newWinner }, token)
       setPoll(p => ({ ...p, winner: newWinner }))
     } catch (e) {
       setError("Couldn't set winner. " + e.message)

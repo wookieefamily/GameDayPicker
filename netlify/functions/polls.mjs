@@ -31,28 +31,20 @@ export default async (req) => {
     const store = getPolls();
     const url   = new URL(req.url);
 
-    // GET /api/polls?debug=1  → list all stored poll slugs
-    if (req.method === "GET" && url.searchParams.get("debug") === "1") {
-      const { blobs } = await store.list();
-      const keys = blobs.map(b => b.key);
-      return new Response(JSON.stringify({ ok: true, keys }), { status: 200, headers });
-    }
-
     // GET /api/polls?slug=foo
     if (req.method === "GET") {
       const rawSlug = url.searchParams.get("slug") ?? "";
       const slug = rawSlug.replace(/[^a-z0-9_-]/g, "");
-      console.log("GET slug:", slug);
       if (!slug) {
         return new Response(JSON.stringify({ error: "slug is required" }), { status: 400, headers });
       }
-      // Use raw get + manual JSON.parse to avoid any typed-cache quirks
       const raw = await store.get(slug);
-      console.log("GET raw result:", raw ? "found" : "null");
       if (!raw) {
         return new Response(JSON.stringify({ error: "Poll not found" }), { status: 404, headers });
       }
-      return new Response(raw, { status: 200, headers });
+      // Strip adminToken — never expose it to the client
+      const { adminToken: _hidden, ...publicPoll } = JSON.parse(raw);
+      return new Response(JSON.stringify(publicPoll), { status: 200, headers });
     }
 
     // POST /api/polls  — create poll, returns { slug }
@@ -104,7 +96,7 @@ export default async (req) => {
       return new Response(JSON.stringify({ slug, adminToken }), { status: 201, headers });
     }
 
-    // PATCH /api/polls?slug=foo  — update fields (e.g. winner)
+    // PATCH /api/polls?slug=foo  — update fields (e.g. winner), requires adminToken in body
     if (req.method === "PATCH") {
       const rawSlug = url.searchParams.get("slug") ?? "";
       const slug = rawSlug.replace(/[^a-z0-9_-]/g, "");
@@ -113,24 +105,16 @@ export default async (req) => {
       if (!raw) return new Response(JSON.stringify({ error: "Poll not found" }), { status: 404, headers });
       let body;
       try { body = await req.json(); } catch { return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers }); }
-      const updated = { ...JSON.parse(raw), ...body };
+      const stored = JSON.parse(raw);
+      // Validate adminToken if poll has one
+      if (stored.adminToken && body.adminToken !== stored.adminToken) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers });
+      }
+      // Only allow updating safe fields — never overwrite adminToken or core identity
+      const { adminToken: _t, slug: _s, createdAt: _c, ...allowedUpdates } = body;
+      const updated = { ...stored, ...allowedUpdates };
       await store.set(slug, JSON.stringify(updated));
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
-    }
-
-    // DELETE /api/polls?wipe=all  — remove all poll blobs (beta reset)
-    if (req.method === "DELETE") {
-      const wipe = url.searchParams.get("wipe")
-      if (wipe === "all") {
-        const { blobs } = await store.list()
-        await Promise.all(blobs.map(b => store.delete(b.key)))
-        return new Response(JSON.stringify({ ok: true, deleted: blobs.map(b => b.key) }), { status: 200, headers })
-      }
-      const rawSlug = url.searchParams.get("slug") ?? ""
-      const slug = rawSlug.replace(/[^a-z0-9_-]/g, "")
-      if (!slug) return new Response(JSON.stringify({ error: "slug or wipe=all required" }), { status: 400, headers })
-      await store.delete(slug)
-      return new Response(JSON.stringify({ ok: true, deleted: slug }), { status: 200, headers })
     }
 
     return new Response("Method not allowed", { status: 405, headers });
