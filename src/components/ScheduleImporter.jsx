@@ -166,7 +166,8 @@ export default function ScheduleImporter({ onImport }) {
   const handleImport = () => {
     const options = filtered.map((g, i) => gameToOption(g, i))
     const teamDisplayName = selectedTeam?.name ?? ''
-    onImport(options, league, teamDisplayName)
+    const teamAbbrev = selectedTeam?.abbreviation ?? ''
+    onImport(options, league, teamDisplayName, teamAbbrev)
     setOpen(false)
   }
 

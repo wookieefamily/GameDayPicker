@@ -25,6 +25,7 @@ export default function Home() {
   const [options, setOptions]   = useState([EMPTY_OPTION(), EMPTY_OPTION()])
   const [league, setLeague]     = useState(null)
   const [teamName, setTeamName] = useState('')
+  const [teamAbbrev, setTeamAbbrev] = useState('')
   const [saving, setSaving]     = useState(false)
   const [error, setError]       = useState(null)
 
@@ -58,6 +59,7 @@ export default function Home() {
         options: validOptions,
         league: league ?? undefined,
         teamName: teamName || null,
+        teamAbbrev: teamAbbrev || null,
         deadline: deadline || null,
       })
       // Persist token so organizer can always get back to admin from this device
@@ -154,9 +156,10 @@ export default function Home() {
           <p style={{ color: '#5a7a9a', fontSize: 16, marginBottom: 12, lineHeight: 1.5 }}>
             Search any MLB, NFL, NBA, NHL, or college team — filter by day, time, and home/away — then import in one click.
           </p>
-          <ScheduleImporter onImport={(imported, importedLeague, importedTeamName) => {
+          <ScheduleImporter onImport={(imported, importedLeague, importedTeamName, importedTeamAbbrev) => {
             setLeague(importedLeague)
             setTeamName(importedTeamName || '')
+            setTeamAbbrev(importedTeamAbbrev || '')
             setOptions(imported.map(o => ({
               name:         o.name,
               date:         o.isoDate || '',

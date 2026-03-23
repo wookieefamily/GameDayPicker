@@ -8,7 +8,7 @@ import { fetchPoll, fetchVotes, pushVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 import { getBrand } from '../lib/brands.js'
 import { downloadICS, googleCalendarUrl } from '../lib/calendar.js'
-import { fanaticsUrl, LEAGUE_EMOJI, LEAGUE_LABEL } from '../lib/fanatics.js'
+import { fanaticsUrl, teamLogoUrl, LEAGUE_EMOJI, LEAGUE_LABEL } from '../lib/fanatics.js'
 
 function WinnerCard({ winner, pollTitle, pollUrl, ac, acText }) {
   const gcUrl = googleCalendarUrl(winner, pollTitle, pollUrl)
@@ -581,12 +581,15 @@ export default function PollVote() {
           const affUrl = fanaticsUrl(poll.league, poll.teamName)
           if (!affUrl) return null
           const emoji = LEAGUE_EMOJI[poll.league] ?? '🏆'
-          const leagueLabel = LEAGUE_LABEL[poll.league] ?? poll.league.toUpperCase()
+          const logoUrl = teamLogoUrl(poll.league, poll.teamAbbrev)
           return (
             <div style={{ marginTop: 20, background: 'white', border: '1px solid #e5e7eb', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-              <div style={{ flex: 1, minWidth: 200 }}>
+              {logoUrl && (
+                <img src={logoUrl} alt={poll.teamName} style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }} />
+              )}
+              <div style={{ flex: 1, minWidth: 160 }}>
                 <div style={{ fontWeight: 800, fontSize: 16, color: '#1a3a5c', marginBottom: 3 }}>
-                  {emoji} Gear up for game day
+                  {!logoUrl && `${emoji} `}Gear up for game day
                 </div>
                 <div style={{ color: '#5a7a9a', fontSize: 14 }}>
                   Shop {poll.teamName} gear on Fanatics

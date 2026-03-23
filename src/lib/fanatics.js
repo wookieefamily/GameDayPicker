@@ -35,6 +35,18 @@ export function fanaticsUrl(league, teamName) {
   return `${TRACKING_BASE}?u=${encodeURIComponent(dest)}`
 }
 
+// Team logo via ESPN CDN — abbreviations come from ESPN's own API so they match exactly
+const ESPN_LEAGUE_FOLDER = {
+  nfl: 'nfl', mlb: 'mlb', nba: 'nba', nhl: 'nhl',
+  mls: 'soccer', wnba: 'wnba',
+}
+
+export function teamLogoUrl(league, abbrev) {
+  const folder = ESPN_LEAGUE_FOLDER[league]
+  if (!folder || !abbrev) return null
+  return `https://a.espncdn.com/i/teamlogos/${folder}/500/${abbrev.toLowerCase()}.png`
+}
+
 // Sport emoji for the card
 export const LEAGUE_EMOJI = {
   mlb: '⚾', nfl: '🏈', nba: '🏀', nhl: '🏒',
