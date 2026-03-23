@@ -22,11 +22,22 @@ async function impactGet(path, params = {}) {
   url.searchParams.set('PageSize', '50')
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
   const res = await fetch(url.toString(), {
-    headers: { Authorization: impactAuth(), Accept: 'application/json' },
+    headers: {
+      Authorization: impactAuth(),
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
   })
   const text = await res.text()
-  try { return { status: res.status, data: JSON.parse(text) }
-  } catch { return { status: res.status, data: text } }
+  let data
+  try { data = JSON.parse(text) } catch { data = text }
+  return {
+    status: res.status,
+    url: url.toString(),
+    data,
+    // Show auth prefix to confirm format (never full token)
+    authPrefix: impactAuth().slice(0, 12) + '…',
+  }
 }
 
 export default async (req) => {
