@@ -8,6 +8,7 @@ import { fetchPoll, fetchVotes, pushVotes } from '../lib/api.js'
 import { computeScores } from '../lib/borda.js'
 import { getBrand } from '../lib/brands.js'
 import { downloadICS, googleCalendarUrl } from '../lib/calendar.js'
+import { fanaticsUrl, LEAGUE_EMOJI, LEAGUE_LABEL } from '../lib/fanatics.js'
 
 function WinnerCard({ winner, pollTitle, pollUrl, ac, acText }) {
   const gcUrl = googleCalendarUrl(winner, pollTitle, pollUrl)
@@ -574,6 +575,34 @@ export default function PollVote() {
             )}
           </div>
         )}
+
+        {/* Fanatics affiliate card */}
+        {view === 'results' && !loading && poll?.teamName && poll?.league && (() => {
+          const affUrl = fanaticsUrl(poll.league, poll.teamName)
+          if (!affUrl) return null
+          const emoji = LEAGUE_EMOJI[poll.league] ?? '🏆'
+          const leagueLabel = LEAGUE_LABEL[poll.league] ?? poll.league.toUpperCase()
+          return (
+            <div style={{ marginTop: 20, background: 'white', border: '1px solid #e5e7eb', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={{ fontWeight: 800, fontSize: 16, color: '#1a3a5c', marginBottom: 3 }}>
+                  {emoji} Gear up for game day
+                </div>
+                <div style={{ color: '#5a7a9a', fontSize: 14 }}>
+                  Shop {poll.teamName} gear on Fanatics
+                </div>
+              </div>
+              <a
+                href={affUrl}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                style={{ padding: '10px 20px', borderRadius: 10, background: '#cc0000', color: 'white', fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: '0 2px 6px rgba(204,0,0,0.25)' }}>
+                Shop {poll.teamName} →
+              </a>
+              <div style={{ width: '100%', fontSize: 11, color: '#c0c0c0' }}>Sponsored · Fanatics affiliate link</div>
+            </div>
+          )
+        })()}
 
         {/* Make it Official */}
         {view === 'results' && !loading && votes.length > 0 && (() => { const fw = poll?.winner ? options.find(o => o.id === poll.winner) : sorted[0]; return fw?.isoDate })() && (
