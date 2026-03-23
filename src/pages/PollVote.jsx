@@ -577,7 +577,7 @@ export default function PollVote() {
         )}
 
         {/* Fanatics affiliate card */}
-        {view === 'results' && !loading && poll?.teamName && poll?.league && (() => {
+        {(view === 'results' || view === 'vote') && !loading && poll?.teamName && poll?.league && (() => {
           const affUrl = fanaticsUrl(poll.league, poll.teamName)
           if (!affUrl) return null
           const emoji = LEAGUE_EMOJI[poll.league] ?? '🏆'
