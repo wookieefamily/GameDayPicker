@@ -90,11 +90,11 @@ export default function Home() {
       {/* Hero */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '36px 20px 32px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <img src="/logo.png" alt="Game Day Picker" style={{ width: 'min(320px, 80vw)', height: 'min(320px, 80vw)', objectFit: 'contain', marginBottom: 8 }} />
-        <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 10 }}>
-          Less group chat. More game day.
+        <h2 style={{ color: '#1a3a5c', fontSize: 28, fontWeight: 800, marginBottom: 6 }}>
+          Less texting, more tailgating.
         </h2>
         <p style={{ color: '#3a5a80', fontSize: 18, maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.6 }}>
-          Share a link, everyone votes on their favorite dates, and the winner is picked for you — no debates required.
+          Go from "who's in?" to "see you there" in minutes.
         </p>
         <div className="how-cards">
           {[
