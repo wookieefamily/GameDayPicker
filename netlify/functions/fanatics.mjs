@@ -32,12 +32,22 @@ async function impactGet(path, params = {}) {
 export default async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers })
 
-  if (!ACCOUNT_SID || !AUTH_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Impact credentials not configured' }), { status: 500, headers })
+  const url     = new URL(req.url)
+  const explore = url.searchParams.get('explore')
+
+  // Debug endpoint — check env vars are present (never logs actual values)
+  if (explore === 'debug') {
+    return new Response(JSON.stringify({
+      hasSid:   !!ACCOUNT_SID,
+      hasToken: !!AUTH_TOKEN,
+      sidPrefix: ACCOUNT_SID ? ACCOUNT_SID.slice(0, 6) + '…' : null,
+      apiBase:  API_BASE,
+    }), { status: 200, headers })
   }
 
-  const url    = new URL(req.url)
-  const explore = url.searchParams.get('explore')
+  if (!ACCOUNT_SID || !AUTH_TOKEN) {
+    return new Response(JSON.stringify({ error: 'Impact credentials not configured', hasSid: !!ACCOUNT_SID, hasToken: !!AUTH_TOKEN }), { status: 500, headers })
+  }
 
   try {
     // Explore: list ads
