@@ -96,6 +96,17 @@ export default async (req) => {
       const verify = await store.get(slug);
       console.log("POST verify:", verify ? "ok" : "MISSING");
 
+      // Notify via Zapier webhook (fire-and-forget)
+      const zapierUrl = process.env.ZAPIER_WEBHOOK_URL;
+      if (zapierUrl) {
+        const adminLink = `https://gamedaypicker.com/poll/${slug}/admin?token=${adminToken}`;
+        fetch(zapierUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug, title: title.trim(), adminLink }),
+        }).catch((e) => console.error("Zapier notify failed:", e));
+      }
+
       return new Response(JSON.stringify({ slug, adminToken }), { status: 201, headers });
     }
 
