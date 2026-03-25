@@ -96,15 +96,23 @@ export default async (req) => {
       const verify = await store.get(slug);
       console.log("POST verify:", verify ? "ok" : "MISSING");
 
-      // Notify via Zapier webhook (fire-and-forget)
-      const zapierUrl = process.env.ZAPIER_WEBHOOK_URL;
-      if (zapierUrl) {
+      // Notify via Resend email (fire-and-forget)
+      const resendKey = process.env.RESEND_API_KEY;
+      if (resendKey) {
         const adminLink = `https://gamedaypicker.com/poll/${slug}/admin?token=${adminToken}`;
-        fetch(zapierUrl, {
+        fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug, title: title.trim(), adminLink }),
-        }).catch((e) => console.error("Zapier notify failed:", e));
+          headers: {
+            "Authorization": `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "Game Day Picker <info@gamedaypicker.com>",
+            to: "info@gamedaypicker.com",
+            subject: "New Poll",
+            text: `New poll created: "${title.trim()}"\n\nAdmin link: ${adminLink}`,
+          }),
+        }).catch((e) => console.error("Resend notify failed:", e));
       }
 
       return new Response(JSON.stringify({ slug, adminToken }), { status: 201, headers });
