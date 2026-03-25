@@ -96,26 +96,29 @@ export default async (req) => {
       const verify = await store.get(slug);
       console.log("POST verify:", verify ? "ok" : "MISSING");
 
-      // Notify via Resend email (fire-and-forget)
+      // Notify via Resend email
       const resendKey = process.env.RESEND_API_KEY;
       if (resendKey) {
-        const adminLink = `https://gamedaypicker.com/poll/${slug}/admin?token=${adminToken}`;
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "Game Day Picker <info@gamedaypicker.com>",
-            to: "info@gamedaypicker.com",
-            subject: "New Poll",
-            text: `New poll created: "${title.trim()}"\n\nAdmin link: ${adminLink}`,
-          }),
-        }).then(async (r) => {
-          const body = await r.text();
-          console.log("Resend status:", r.status, body);
-        }).catch((e) => console.error("Resend notify failed:", e));
+        try {
+          const adminLink = `https://gamedaypicker.com/poll/${slug}/admin?token=${adminToken}`;
+          const r = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Game Day Picker <info@gamedaypicker.com>",
+              to: "info@gamedaypicker.com",
+              subject: "New Poll",
+              text: `New poll created: "${title.trim()}"\n\nAdmin link: ${adminLink}`,
+            }),
+          });
+          const resendBody = await r.text();
+          console.log("Resend status:", r.status, resendBody);
+        } catch (e) {
+          console.error("Resend notify failed:", e);
+        }
       }
 
       return new Response(JSON.stringify({ slug, adminToken }), { status: 201, headers });
