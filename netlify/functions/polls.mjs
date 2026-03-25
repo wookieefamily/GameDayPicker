@@ -112,6 +112,9 @@ export default async (req) => {
             subject: "New Poll",
             text: `New poll created: "${title.trim()}"\n\nAdmin link: ${adminLink}`,
           }),
+        }).then(async (r) => {
+          const body = await r.text();
+          console.log("Resend status:", r.status, body);
         }).catch((e) => console.error("Resend notify failed:", e));
       }
 
